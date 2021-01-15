@@ -145,8 +145,12 @@ int equals(List A, List B){
 
 // Resets L to its original empty state.
 void clear(List L){
-
-};
+  if(L != NULL){
+    for(moveFront(L); index(L) >= 0; moveNext(L)){
+      deleteFront(L);
+    }
+  }
+}
 
 // Overwrites the cursor element’s data with x.
 // Pre: length()>0, index()>=0
@@ -173,11 +177,11 @@ void moveFront(List L){
 // otherwise does nothing.
 void moveBack(List L){
   if (L == NULL){
-    printf("List Error: calling moveFront() on NULL List reference\n");
+    printf("List Error: calling moveBack() on NULL List reference\n");
     exit(EXIT_FAILURE);
   }
   if(length(L) <= 0){
-    printf("List Error: calling moveFront() on an empty List\n");
+    printf("List Error: calling moveBack() on an empty List\n");
     exit(EXIT_FAILURE);
   }
   L->cursor->data = L->back->data;
@@ -257,7 +261,7 @@ void deleteFront(List L){
   Node N = NULL;
 
   if(L == NULL){
-    printf("List Error: calling append() on NULL List reference\n");
+    printf("List Error: calling deleteFront() on NULL List reference\n");
     exit(EXIT_FAILURE);
   }
   if(length(L) <= 0){
