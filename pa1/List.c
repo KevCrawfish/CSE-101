@@ -1,7 +1,10 @@
 // Kevin M Crawford, kemcrawf, pa1
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "List.h"
+
+#define MAX_LEN 300
 
 // private NodeObj type
 typedef struct NodeObj{
@@ -90,7 +93,7 @@ int front(List L){
     exit(EXIT_FAILURE);
   }
   return L->front->data;
-};
+}
 
 // Returns back element of L. Pre: length()>0
 int back(List L){
@@ -220,10 +223,12 @@ void movePrev(List L){
   }
   if (L->cursor == L->front){
     L->cursor = NULL;
+    L->index = -1;
   } else {
     L->cursor = L->cursor->prev;
+    L->index -= 1;
   }
-};
+}
 
 // If cursor is defined and not at back, move cursor one
 // step toward the back of L; if cursor is defined and at
@@ -243,10 +248,12 @@ void moveNext(List L){
   }
   if (L->cursor == L->back){
     L->cursor = NULL;
+    L->index = -1;
   } else {
     L->cursor = L->cursor->next;
+    L->index += 1;
   }
-};
+}
 
 // Insert new element into L. If L is non-empty,
 // insertion takes place before front element.
@@ -260,6 +267,7 @@ void prepend(List L, int x){
   if(length(L) <= 0){
     L->front = L->back = N;
   } else{
+    N->next = L->front;
     L->front->prev = N;
     L->front = N;
   }
@@ -302,9 +310,8 @@ void insertBefore(List L, int x){
     exit(EXIT_FAILURE);
   }
   L->cursor->prev = N;
-  L->cursor = N;
   L->length++;
-};
+}
 
 // Insert new element after cursor.
 // Pre: length()>0, index()>=0
@@ -324,7 +331,6 @@ void insertAfter(List L, int x){
     exit(EXIT_FAILURE);
   }
   L->cursor->next = N;
-  L->cursor = N;
   L->length++;
 }
 
@@ -351,11 +357,11 @@ void deleteBack(List L){
   Node N = NULL;
 
   if(L == NULL){
-    printf("List Error: calling deleteFront() on NULL List reference\n");
+    printf("List Error: calling deleteBack() on NULL List reference\n");
     exit(EXIT_FAILURE);
   }
   if(length(L) <= 0){
-    printf("List Error: calling deleteFront() on an empty List\n");
+    printf("List Error: calling deleteBack() on an empty List\n");
     exit(EXIT_FAILURE);
   }
   N = L->back;
@@ -367,16 +373,35 @@ void deleteBack(List L){
 // Delete cursor element, making cursor undefined.
 // Pre: length()>0, index()>=0
 void delete(List L){
+  Node N = NULL;
 
-};
+  if(L == NULL){
+    printf("List Error: calling delete() on NULL List reference\n");
+    exit(EXIT_FAILURE);
+  }
+  if(length(L) <= 0){
+    printf("List Error: calling delete() on an empty List\n");
+    exit(EXIT_FAILURE);
+  }
+  N = L->cursor;
+  L->cursor = NULL;
+  L->length--;
+  freeNode(&N);
+}
 
 // Prints to the file pointed to by out, a
 // string representation of L consisting
 // of a space separated sequence of integers,
 // with front on left.
-void printList(FILE* out, List L){
-
-};
+void printList(List L){
+  if(L == NULL){
+    printf("List Error: calling printList() on NULL List reference\n");
+    exit(EXIT_FAILURE);
+  }
+  for(moveFront(L); index(L)>=0; moveNext(L)){
+     printf("%d ", get(L));
+  }
+}
 
 // Returns a new List representing the same integer
 // sequence as L. The cursor in the new list is undefined,

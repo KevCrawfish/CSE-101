@@ -87,7 +87,7 @@ void delete(List L);
 // string representation of L consisting
 // of a space separated sequence of integers,
 // with front on left.
-void printList(FILE* out, List L);
+void printList(List L);
 
 // Returns a new List representing the same integer
 // sequence as L. The cursor in the new list is undefined,
