@@ -155,7 +155,19 @@ void clear(List L){
 // Overwrites the cursor element’s data with x.
 // Pre: length()>0, index()>=0
 void set(List L, int x){
-
+  if(L == NULL){
+    printf("List Error: calling set() on NULL List reference\n");
+    exit(EXIT_FAILURE);
+  }
+  if(length(L) <= 0){
+    printf("List Error: calling set() on an empty List\n");
+    exit(EXIT_FAILURE);
+  }
+  if(index(L) < 0){
+    printf("List Error: calling set() on an undefined cursor element\n");
+    exit(EXIT_FAILURE);
+  }
+  L->cursor->data = x;
 };
 
 // If L is non-empty, sets cursor under the front element,
@@ -169,7 +181,7 @@ void moveFront(List L){
     printf("List Error: calling moveFront() on an empty List\n");
     exit(EXIT_FAILURE);
   }
-  L->cursor->data = L->front->data;
+  L->cursor = L->front;
   L->index = 0;
 }
 
@@ -184,7 +196,7 @@ void moveBack(List L){
     printf("List Error: calling moveBack() on an empty List\n");
     exit(EXIT_FAILURE);
   }
-  L->cursor->data = L->back->data;
+  L->cursor = L->back;
   L->index = (L->length - 1);
 }
 
