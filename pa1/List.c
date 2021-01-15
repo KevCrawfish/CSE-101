@@ -233,7 +233,23 @@ void insertBefore(List L, int x){
 // Insert new element after cursor.
 // Pre: length()>0, index()>=0
 void insertAfter(List L, int x){
+  Node N = newNode(x);
 
+  if(L == NULL){
+    printf("List Error: calling insertAfter() on NULL List reference\n");
+    exit(EXIT_FAILURE);
+  }
+  if(length(L) <= 0){
+    printf("List Error: calling insertAfter() on an empty List\n");
+    exit(EXIT_FAILURE);
+  }
+  if(index(L) < 0){
+    printf("List Error: calling insertAfter() on an undefined cursor element\n");
+    exit(EXIT_FAILURE);
+  }
+  L->cursor->next = N;
+  L->cursor = N;
+  L->length++;
 };
 
 // Delete the front element. Pre: length()>0
