@@ -7,6 +7,7 @@
 typedef struct NodeObj{
   int data;
   struct NodeObj *next;
+  struct NodeObj *prev;
 } NodeObj;
 
 // private Node type
@@ -26,6 +27,7 @@ Node newNode(int data){
   Node N = malloc(sizeof(NodeObj));
   N->data = data;
   N->next = NULL;
+  N->prev = NULL;
   return N;
 }
 
@@ -168,7 +170,7 @@ void set(List L, int x){
     exit(EXIT_FAILURE);
   }
   L->cursor->data = x;
-};
+}
 
 // If L is non-empty, sets cursor under the front element,
 // otherwise does nothing.
@@ -219,8 +221,20 @@ void moveNext(List L){
 // Insert new element into L. If L is non-empty,
 // insertion takes place before front element.
 void prepend(List L, int x){
+  Node N = newNode(x);
 
-};
+  if(L == NULL){
+    printf("List Error: calling prepend() on NULL List reference\n");
+    exit(EXIT_FAILURE);
+  }
+  if(length(L) <= 0){
+    L->front = L->back = N;
+  } else{
+    L->front->prev = N;
+    L->front = N;
+  }
+  L->length++;
+}
 
 // Insert new element into L. If L is non-empty,
 // insertion takes place after back element.
@@ -238,7 +252,7 @@ void append(List L, int x){
     L->back = N;
   }
   L->length++;
-};
+}
 
 // Insert new element before cursor.
 // Pre: length()>0, index()>=0
@@ -266,7 +280,7 @@ void insertAfter(List L, int x){
   L->cursor->next = N;
   L->cursor = N;
   L->length++;
-};
+}
 
 // Delete the front element. Pre: length()>0
 void deleteFront(List L){
@@ -284,7 +298,7 @@ void deleteFront(List L){
   L->front = L->front->next;
   L->length--;
   freeNode(&N);
-};
+}
 
 // Delete the back element. Pre: length()>0
 void deleteBack(List L){
