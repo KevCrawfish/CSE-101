@@ -1,5 +1,5 @@
-// Kevin M Crawford, kemcrawf, pa1
 /****************************************************************************************
+* Kevin M Crawford, kemcrawf, pa1
 *  Lex.c
 *  Uses Integer List ADT to alphabetize lines in a file.
 *****************************************************************************************/
@@ -8,7 +8,100 @@
 #include <string.h>
 #include "List.h"
 
+#define MAX_LEN 300
+#define strdup(s) strcpy(malloc(strlen(s) + 1), s)
+
 int main(int argc, char* argv[]){
+
+  List A = newList();
+  List B = newList();
+  int lines;
+  FILE *in;
+  char line[MAX_LEN];
+
+  // check command line for correct number of arguments
+  if(argc != 2){
+    printf("Usage: %s <input file> \n", argv[0]);
+    exit(1);
+  }
+
+  // open files for reading and writing
+  in = fopen(argv[1], "r");
+    if(in == NULL){
+    printf("Unable to open file %s for reading\n", argv[1]);
+    exit(1);
+  }
+
+  // read each line of input file
+  lines = 0;
+  while(fgets(line, MAX_LEN, in) != NULL){
+    lines++;
+  }
+
+  rewind(in);
+  char *inputs[MAX_LEN];
+  int j = 0;
+  while(fgets(line, MAX_LEN, in) != NULL){
+    inputs[j] = strdup(line);
+    j++;
+  }
+
+  for(int i = 0; i < lines; i++){
+    append(A, i);
+    append(B, i);
+  }
+
+  int left = 0;
+  moveFront(A);
+  moveFront(B);
+
+  for(int i = 0; i < lines; i++){
+    while(left < i){
+      if(strcmp(inputs[get(A)],inputs[get(B)]) > 0){
+        int temp = get(A);
+        int temp2 = get(B);
+
+        moveFront(A);
+        moveFront(B);
+        for(int j = 0; j < left; j++){
+          moveNext(A);
+          moveNext(B);
+        }
+        set(A, temp2);
+        set(B, temp2);
+
+        moveFront(A);
+        moveFront(B);
+        for(int j = 0; j < i; j++){
+          moveNext(A);
+          moveNext(B);
+        }
+        set(A, temp);
+        set(B, temp);
+
+        moveFront(A);
+        for(int j = 0; j < left; j++){
+          moveNext(A);
+        }
+      }
+      left++;
+      moveNext(A);
+    }
+    left = 0;
+    moveFront(A);
+    moveNext(B);
+  }
+
+
+  for(int i = 0; i < lines; i++){
+    printf("%s", inputs[get(A)]);
+    moveNext(A);
+  }
+
+  // close files;
+  fclose(in);
+  clear(A);
+  freeList(&A);
 
   return(0);
 }

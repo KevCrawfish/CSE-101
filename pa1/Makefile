@@ -1,5 +1,5 @@
-# Kevin M Crawford, kemcrawf, pa1
 #------------------------------------------------------------------------------
+# Kevin M Crawford, kemcrawf, pa1
 # Makefile for CSE 101 Programming Assignment 1
 #
 # make                   makes Lex
