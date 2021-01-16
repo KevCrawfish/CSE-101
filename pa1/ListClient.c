@@ -41,16 +41,12 @@ int main(int argc, char* argv[]){
    moveFront(A);
    for(i=0; i<5; i++) moveNext(A); // at index 5
    insertBefore(A, -1);            // at index 6
-   printList(A);
-   printf("\n");
-   return 0;
    for(i=0; i<9; i++) moveNext(A); // at index 15
    insertAfter(A, -2);
    for(i=0; i<5; i++) movePrev(A); // at index 10
    delete(A);
    printList(A);
    printf("\n");
-   return 0;
    printf("%d\n", length(A));
    clear(A);
    printf("%d\n", length(A));

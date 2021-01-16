@@ -183,8 +183,7 @@ void moveFront(List L){
     exit(EXIT_FAILURE);
   }
   if(length(L) <= 0){
-    printf("List Error: calling moveFront() on an empty List\n");
-    exit(EXIT_FAILURE);
+    return;
   }
   L->cursor = L->front;
   L->index = 0;
@@ -236,11 +235,7 @@ void movePrev(List L){
 // do nothing
 void moveNext(List L){
   if (L == NULL){
-    printf("List Error: calling movePrev() on NULL List reference\n");
-    exit(EXIT_FAILURE);
-  }
-  if(length(L) <= 0){
-    printf("List Error: calling movePrev() on an empty List\n");
+    printf("List Error: calling moveNext() on NULL List reference\n");
     exit(EXIT_FAILURE);
   }
   if (L->cursor == NULL){
@@ -287,6 +282,7 @@ void append(List L, int x){
     L->front = L->back = N;
   } else{
     L->back->next = N;
+    N->prev = L->back;
     L->back = N;
   }
   L->length++;
@@ -309,7 +305,16 @@ void insertBefore(List L, int x){
     printf("List Error: calling insertAfter() on an undefined cursor element\n");
     exit(EXIT_FAILURE);
   }
-  L->cursor->prev = N;
+  L->cursor = L->front;
+  for(int i = 0; i < L->index - 1; i++){
+    L->cursor = L->cursor->next;
+  }
+  N->next = L->cursor->next;
+  N->prev = L->cursor;
+  L->cursor->next = N;
+  L->cursor->next->prev = N;
+  L->cursor = N->next;
+  L->index++;
   L->length++;
 }
 
@@ -330,7 +335,10 @@ void insertAfter(List L, int x){
     printf("List Error: calling insertAfter() on an undefined cursor element\n");
     exit(EXIT_FAILURE);
   }
+  N->next = L->cursor->next;
+  N->prev = L->cursor;
   L->cursor->next = N;
+  L->cursor->next->prev = N;
   L->length++;
 }
 
@@ -384,7 +392,9 @@ void delete(List L){
     exit(EXIT_FAILURE);
   }
   N = L->cursor;
+  L->cursor->prev->next = L->cursor->next;
   L->cursor = NULL;
+  L->index = -1;
   L->length--;
   freeNode(&N);
 }
