@@ -315,6 +315,15 @@ void insertBefore(List L, int x){
     prepend(L, x);
     return;
   }
+
+  ////////////////////////////////////////////////////////
+  // this might be unneccesary
+  // but I was getting bugs initially
+  // the quickest fix was to set the cursor
+  // one step back without using prev
+  // then do an insert after
+  // and I'm too afraid to change it
+  //
   L->cursor = L->front;
   for(int i = 0; i < L->index - 1; i++){
     L->cursor = L->cursor->next;
@@ -326,6 +335,8 @@ void insertBefore(List L, int x){
   L->cursor = N->next;
   L->index++;
   L->length++;
+  //
+  ////////////////////////////////////////////////////////
 }
 
 // Insert new element after cursor.
