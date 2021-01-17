@@ -3,35 +3,25 @@
 *  ListClient.c
 *  Test client for List ADT
 *****************************************************************************************/
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include "List.h"
+#include<stdio.h>
+#include<stdlib.h>
+#include"List.h"
 
 int main(int argc, char* argv[]){
 
    List A = newList();
    List B = newList();
+   List C = NULL;
    int i;
-
-   append(A, 2);
-   prepend(A, 1);
-   moveFront(A);
-   List C = copyList(A);
-   bool res = (index(A) != 0 || !equals(A, C) || A == C);
-   freeList(&C);
-   if (res) return 0;
-   printf("ok");
-   return 0;
 
    for(i=1; i<=20; i++){
       append(A,i);
       prepend(B,i);
    }
 
-   printList(A);
+   printList(stdout,A);
    printf("\n");
-   printList(B);
+   printList(stdout,B);
    printf("\n");
 
    for(moveFront(A); index(A)>=0; moveNext(A)){
@@ -48,6 +38,7 @@ int main(int argc, char* argv[]){
    printf("%s\n", equals(B,C)?"true":"false");
    printf("%s\n", equals(C,A)?"true":"false");
 
+
    moveFront(A);
    for(i=0; i<5; i++) moveNext(A); // at index 5
    insertBefore(A, -1);            // at index 6
@@ -55,7 +46,7 @@ int main(int argc, char* argv[]){
    insertAfter(A, -2);
    for(i=0; i<5; i++) movePrev(A); // at index 10
    delete(A);
-   printList(A);
+   printList(stdout,A);
    printf("\n");
    printf("%d\n", length(A));
    clear(A);

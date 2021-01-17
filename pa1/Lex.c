@@ -110,8 +110,6 @@ int main(int argc, char* argv[]){
   // close files;
   fclose(in);
   fclose(out);
-  clear(A);
-  clear(B);
   freeList(&A);
   freeList(&B);
 

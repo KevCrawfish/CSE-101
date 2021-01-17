@@ -56,7 +56,7 @@ List newList(void){
 // *pL to NULL.
 void freeList(List* pL){
   if(pL != NULL && *pL != NULL){
-    for(moveFront(*pL); index(*pL) >= 0; moveNext(*pL)){
+    while(length(*pL) > 0){
       deleteFront(*pL);
     }
     free(*pL);
@@ -264,7 +264,6 @@ void prepend(List L, int x){
     L->front = L->back = N;
   } else{
     N->next = L->front;
-    N->prev = NULL;
     L->front->prev = N;
     L->front = N;
   }
@@ -286,7 +285,6 @@ void append(List L, int x){
   } else{
     L->back->next = N;
     N->prev = L->back;
-    N->next = NULL;
     L->back = N;
   }
   L->length++;
@@ -372,7 +370,11 @@ void deleteFront(List L){
     L->index = -1;
   }
   N = L->front;
-  L->front = L->front->next;
+  if(length(L) > 1){
+    L->front = L->front->next;
+  } else {
+    L->front = NULL;
+  }
   L->length--;
   freeNode(&N);
 }
@@ -447,19 +449,13 @@ void delete(List L){
 // string representation of L consisting
 // of a space separated sequence of integers,
 // with front on left.
-void printList(List L){
+void printList(FILE *out, List L){
   if(L == NULL){
     printf("List Error: calling printList() on NULL List reference\n");
     exit(EXIT_FAILURE);
   }
-  int temp = L->index;
   for(moveFront(L); index(L)>=0; moveNext(L)){
-     printf("%d ", get(L));
-  }
-  L->index = temp;
-  moveFront(L);
-  for(int i = 0; i < temp; i++){
-    moveNext(L);
+     fprintf(out, "%d ", get(L));
   }
 }
 
