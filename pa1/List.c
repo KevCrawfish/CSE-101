@@ -155,10 +155,11 @@ int equals(List A, List B){
 // Resets L to its original empty state.
 void clear(List L){
   if(L != NULL){
-    for(moveFront(L); index(L) >= 0; moveNext(L)){
+    while(length(L) > 0){
       deleteFront(L);
     }
   }
+  L->index = -1;
   L->length = 0;
 }
 
