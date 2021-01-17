@@ -1,4 +1,8 @@
-// Kevin M Crawford, kemcrawf, pa1
+/****************************************************************************************
+*  Kevin M Crawford, kemcrawf, pa1
+*  List.c
+*  Doubly Linked List ADT implementation.
+*****************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,1 +1,5 @@
-
+List.h - Contains function headers for List.c
+List.c - Doubly Linked List ADT implementation.
+ListClient.c - Test client for Doubly Linked List ADT
+Lex.c - Uses Doubly Linked List ADT to alphabetize lines in a file.
+Makefile - Makefile for CSE 101 Programming Assignment 1

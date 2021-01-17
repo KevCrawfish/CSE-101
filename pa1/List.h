@@ -1,4 +1,8 @@
-// Kevin M Crawford, kemcrawf, pa1
+/****************************************************************************************
+*  Kevin M Crawford, kemcrawf, pa1
+*  List.h
+*  Contains function headers for List.c
+*****************************************************************************************/
  #ifndef __LIST_H__
  #define __LIST_H__
 

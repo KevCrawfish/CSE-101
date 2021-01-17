@@ -1,7 +1,7 @@
 /****************************************************************************************
 *  Kevin M Crawford, kemcrawf, pa1
 *  Lex.c
-*  Uses Integer List ADT to alphabetize lines in a file.
+*  Uses Doubly Linked List ADT to alphabetize lines in a file.
 *****************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>

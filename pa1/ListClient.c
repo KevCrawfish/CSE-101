@@ -1,7 +1,7 @@
 /****************************************************************************************
 *  Kevin M Crawford, kemcrawf, pa1
 *  ListClient.c
-*  Test client for List ADT
+*  Test client for Doubly Linked List ADT
 *****************************************************************************************/
 #include<stdio.h>
 #include<stdlib.h>
