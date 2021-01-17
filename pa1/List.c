@@ -155,6 +155,7 @@ void clear(List L){
       deleteFront(L);
     }
   }
+  L->length = 0;
 }
 
 // Overwrites the cursor element’s data with x.
@@ -246,7 +247,7 @@ void moveNext(List L){
     L->index = -1;
   } else {
     L->cursor = L->cursor->next;
-    L->index += 1;
+    L->index++;
   }
 }
 
@@ -263,9 +264,11 @@ void prepend(List L, int x){
     L->front = L->back = N;
   } else{
     N->next = L->front;
+    N->prev = NULL;
     L->front->prev = N;
     L->front = N;
   }
+  L->index++;
   L->length++;
 }
 
@@ -283,6 +286,7 @@ void append(List L, int x){
   } else{
     L->back->next = N;
     N->prev = L->back;
+    N->next = NULL;
     L->back = N;
   }
   L->length++;
@@ -304,6 +308,10 @@ void insertBefore(List L, int x){
   if(index(L) < 0){
     printf("List Error: calling insertAfter() on an undefined cursor element\n");
     exit(EXIT_FAILURE);
+  }
+  if(L->cursor == L->front){
+    prepend(L, x);
+    return;
   }
   L->cursor = L->front;
   for(int i = 0; i < L->index - 1; i++){
@@ -340,6 +348,10 @@ void insertAfter(List L, int x){
   L->cursor->next = N;
   L->cursor->next->prev = N;
   L->length++;
+  if(L->cursor == L->back){
+    L->back->next->prev = L->back;
+    L->back = L->back->next;
+  }
 }
 
 // Delete the front element. Pre: length()>0
@@ -353,6 +365,11 @@ void deleteFront(List L){
   if(length(L) <= 0){
     printf("List Error: calling deleteFront() on an empty List\n");
     exit(EXIT_FAILURE);
+  }
+  L->index--;
+  if(L->cursor == L->front){
+    L->cursor = NULL;
+    L->index = -1;
   }
   N = L->front;
   L->front = L->front->next;
@@ -371,6 +388,10 @@ void deleteBack(List L){
   if(length(L) <= 0){
     printf("List Error: calling deleteBack() on an empty List\n");
     exit(EXIT_FAILURE);
+  }
+  if(L->cursor == L->back){
+    L->cursor = NULL;
+    L->index = -1;
   }
   N = L->back;
   L->back = L->back->prev;
@@ -391,6 +412,29 @@ void delete(List L){
     printf("List Error: calling delete() on an empty List\n");
     exit(EXIT_FAILURE);
   }
+  if(index(L) < 0){
+    printf("List Error: calling delete() on an undefined cursor element\n");
+    exit(EXIT_FAILURE);
+  }
+  if(L->cursor == L->front){
+    L->cursor = NULL;
+    L->index = -1;
+    N = L->front;
+    L->front = L->front->next;
+    L->length--;
+    freeNode(&N);
+    return;
+  }
+  if(L->cursor == L->back){
+    L->cursor = NULL;
+    L->index = -1;
+    N = L->back;
+    L->back = L->back->prev;
+    L->length--;
+    freeNode(&N);
+    return;
+  }
+
   N = L->cursor;
   L->cursor->prev->next = L->cursor->next;
   L->cursor = NULL;
@@ -408,8 +452,14 @@ void printList(List L){
     printf("List Error: calling printList() on NULL List reference\n");
     exit(EXIT_FAILURE);
   }
+  int temp = L->index;
   for(moveFront(L); index(L)>=0; moveNext(L)){
      printf("%d ", get(L));
+  }
+  L->index = temp;
+  moveFront(L);
+  for(int i = 0; i < temp; i++){
+    moveNext(L);
   }
 }
 
@@ -420,6 +470,7 @@ void printList(List L){
 List copyList(List L){
   List R = newList();
   int x;
+  int temp = L->index;
 
   if(L == NULL){
     printf("List Error: calling copyList() on NULL List reference\n");
@@ -428,6 +479,11 @@ List copyList(List L){
   for(moveFront(L); index(L) >= 0; moveNext(L)){
     x = get(L);
     append(R, x);
+  }
+  L->index = temp;
+  moveFront(L);
+  for(int i = 0; i < temp; i++){
+    moveNext(L);
   }
   return R;
 }

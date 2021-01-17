@@ -1,18 +1,28 @@
 /****************************************************************************************
-* Kevin M Crawford, kemcrawf, pa1
+*  Kevin M Crawford, kemcrawf, pa1
 *  ListClient.c
 *  Test client for List ADT
 *****************************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "List.h"
 
 int main(int argc, char* argv[]){
 
    List A = newList();
    List B = newList();
-   List C = NULL;
    int i;
+
+   append(A, 2);
+   prepend(A, 1);
+   moveFront(A);
+   List C = copyList(A);
+   bool res = (index(A) != 0 || !equals(A, C) || A == C);
+   freeList(&C);
+   if (res) return 0;
+   printf("ok");
+   return 0;
 
    for(i=1; i<=20; i++){
       append(A,i);

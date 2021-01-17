@@ -1,5 +1,5 @@
 /****************************************************************************************
-* Kevin M Crawford, kemcrawf, pa1
+*  Kevin M Crawford, kemcrawf, pa1
 *  Lex.c
 *  Uses Integer List ADT to alphabetize lines in a file.
 *****************************************************************************************/
@@ -8,7 +8,7 @@
 #include <string.h>
 #include "List.h"
 
-#define MAX_LEN 300
+#define MAX_LEN 1000
 #define strdup(s) strcpy(malloc(strlen(s) + 1), s)
 
 int main(int argc, char* argv[]){
@@ -16,19 +16,25 @@ int main(int argc, char* argv[]){
   List A = newList();
   List B = newList();
   int lines;
-  FILE *in;
+  FILE *in, *out;
   char line[MAX_LEN];
 
   // check command line for correct number of arguments
-  if(argc != 2){
-    printf("Usage: %s <input file> \n", argv[0]);
+  if(argc != 3){
+    printf("Usage: %s <input file> <output file>\n", argv[0]);
     exit(1);
   }
 
   // open files for reading and writing
   in = fopen(argv[1], "r");
-    if(in == NULL){
+  if(in == NULL){
     printf("Unable to open file %s for reading\n", argv[1]);
+    exit(1);
+  }
+
+  out = fopen(argv[2], "w");
+  if(out == NULL){
+    printf("Unable to open file %s for writing\n", argv[2]);
     exit(1);
   }
 
@@ -92,16 +98,22 @@ int main(int argc, char* argv[]){
     moveNext(B);
   }
 
-
   for(int i = 0; i < lines; i++){
-    printf("%s", inputs[get(A)]);
+    fprintf(out, "%s", inputs[get(A)]);
     moveNext(A);
   }
 
+  for(int i = 0; i < lines; i++){
+    free(inputs[i]);
+    inputs[i] = NULL;
+  }
   // close files;
   fclose(in);
+  fclose(out);
   clear(A);
+  clear(B);
   freeList(&A);
+  freeList(&B);
 
   return(0);
 }
