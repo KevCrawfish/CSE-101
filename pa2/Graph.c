@@ -11,33 +11,66 @@
 
 // private GraphObj type
 typedef struct GraphObj{
-  int *lists;
+  List *lists;
   int *colors;
   int *parents;
   int *distance;
-  int order;
-  int edges;
+  int vertices; //order
+  int edges; //size
+  int label;
 } GraphObj;
 
 // Creates and returns a new empty graph.
 Graph newGraph(int n){
-  return 0;
+  Graph G = malloc(sizeof(GraphObj));
+
+  G->lists = (List *)malloc((n + 1) * sizeof(List));
+  for(int i = 1; i < n; i++){
+    G->lists[i] = newList();
+  }
+
+  G->colors = (int *)malloc((n + 1) * sizeof(int));
+  G->parents = (int *)malloc((n + 1) * sizeof(int));
+  G->distance = (int *)malloc((n + 1) * sizeof(int));
+
+  G->vertices = n;
+  G->edges = 0;
+  G->label = 0;
+  return G;
 }
 
 // Frees all heap memory associated with *pG, and sets
 // *pG to NULL.
 void freeGraph(Graph* pG){
-
+  if(pG != NULL && *pG != NULL){
+    for(int i = 0; i < (*pG)->vertices; i++) {
+      freeList(&(*pG)->lists[i]);
+    }
+    free((*pG)->lists);
+    free((*pG)->colors);
+    free((*pG)->parents);
+    free((*pG)->distance);
+    free(*pG);
+    *pG = NULL;
+  }
 }
 
 // Returns the number of vertices of the graph.
 int getOrder(Graph G){
-  return 0;
+  if (G == NULL){
+    printf("List Error: calling getOrder() on NULL Graph reference\n");
+    exit(EXIT_FAILURE);
+  }
+  return G->vertices;
 }
 
 // Returns the number of edges of the graph.
 int getSize(Graph G){
-  return 0;
+  if (G == NULL){
+    printf("List Error: calling getSize() on NULL Graph reference\n");
+    exit(EXIT_FAILURE);
+  }
+  return G->edges;
 }
 
 // Returns the source vertex most recently used in function BFS()
