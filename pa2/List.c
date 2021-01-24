@@ -144,7 +144,7 @@ int equals(List A, List B){
   eq = (A->length == B->length);
   N = A->front;
   M = B->front;
-  while(eq && N != NULL){
+  while(eq && N != NULL && M != NULL){
     eq = (N->data == M->data);
     N = N->next;
     M = M->next;
@@ -414,6 +414,9 @@ void deleteBack(List L){
   N = L->back;
   L->back = L->back->prev;
   L->length--;
+  if(L->length != 0){
+    L->back->next = NULL;
+  }
   freeNode(&N);
 }
 
@@ -449,6 +452,9 @@ void delete(List L){
     N = L->back;
     L->back = L->back->prev;
     L->length--;
+    if(L->length != 0){
+      L->back->next = NULL;
+    }
     freeNode(&N);
     return;
   }

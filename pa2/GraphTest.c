@@ -8,7 +8,7 @@
 #include"Graph.h"
 
 int main(int argc, char* argv[]){
-  int i, n = 35;
+  int i, s, max, d, n = 35;
   List  C = newList(); // central vertices
   List  P = newList(); // peripheral vertices
   List  E = newList(); // eccentricities
@@ -27,6 +27,17 @@ int main(int argc, char* argv[]){
 
   // Print adjacency list representation of G
   printGraph(stdout, G);
+
+  // Calculate the eccentricity of each vertex
+  for(s=1; s<=n; s++){
+     BFS(G, s);
+     max = getDist(G, 1);
+     for(i=2; i<=n; i++){
+        d = getDist(G, i);
+        max = ( max<d ? d : max );
+     }
+     append(E, max);
+  }
 
   // Free objects
   freeList(&C);

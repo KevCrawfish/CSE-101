@@ -8,6 +8,9 @@
 
  #include "List.h"
 
+ #define NIL -1
+ #define INF 1
+
  typedef struct GraphObj *Graph;
 
  // Creates and returns a new empty graph.
