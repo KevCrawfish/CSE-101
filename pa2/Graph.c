@@ -12,12 +12,12 @@
 // private GraphObj type
 typedef struct GraphObj{
   List *lists;
-  int *colors;
+  char *colors;
   int *parents;
   int *distance;
   int vertices; //order
   int edges; //size
-  int label;
+  int source;
 } GraphObj;
 
 // Creates and returns a new empty graph.
@@ -29,13 +29,13 @@ Graph newGraph(int n){
     G->lists[i] = newList();
   }
 
-  G->colors = (int *)malloc((n + 1) * sizeof(int));
+  G->colors = (char *)malloc((n + 1) * sizeof(char));
   G->parents = (int *)malloc((n + 1) * sizeof(int));
   G->distance = (int *)malloc((n + 1) * sizeof(int));
 
   G->vertices = n;
   G->edges = 0;
-  G->label = 0;
+  G->source = 0;
   return G;
 }
 
@@ -43,7 +43,7 @@ Graph newGraph(int n){
 // *pG to NULL.
 void freeGraph(Graph* pG){
   if(pG != NULL && *pG != NULL){
-    for(int i = 0; i < (*pG)->vertices + 1; i++) {
+    for(int i = 1; i < (*pG)->vertices + 1; i++) {
       freeList(&(*pG)->lists[i]);
     }
     free((*pG)->lists);
@@ -151,7 +151,35 @@ void addArc(Graph G, int u, int v){
 // Runs the BFA algorithm on the Graph G with source s
 // Sets the color, distance, parent, and source fields of G accordingly.
 void BFS(Graph G, int s){
+  for(int i = 1; i < G->vertices + 1; i++){
+    if(i == s){
+      continue;
+    }
+    G->colors[i] = 'w';
+    G->distance[i] = INF;
+    G->parents[i] = NIL;
+  }
+  G->colors[s] = 'g';
+  G->distance[s] = 0;
+  G->parents[s] = NIL;
 
+  List Q = newList();
+  append(Q, s);
+  int x = 0;
+  while(index(Q) > 0){
+    x = front(Q);
+    deleteFront(Q);
+    for(int y = 1; y < G->vertices + 1; y++){
+      if(G->colors[y] == 'w'){
+        G->colors[y] = 'g';
+        G->distance[y] = G->distance[x] + 1;
+        G->parents[y] = x;
+        append(Q, y);
+      }
+    }
+    G->colors[x] = 'b';
+  }
+  freeList(&Q);
 }
 
 // Prints the adjacency list representation of G to the file pointed to by out.

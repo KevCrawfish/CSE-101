@@ -25,9 +25,6 @@ int main(int argc, char* argv[]){
   addEdge(G, 17, 13);
   addEdge(G, 14, 33);
 
-  // Print adjacency list representation of G
-  printGraph(stdout, G);
-
   // Calculate the eccentricity of each vertex
   for(s=1; s<=n; s++){
      BFS(G, s);
