@@ -25,17 +25,18 @@ Graph newGraph(int n){
   Graph G = malloc(sizeof(GraphObj));
 
   G->lists = (List *)malloc((n + 1) * sizeof(List));
-  for(int i = 1; i < n + 1; i++){
-    G->lists[i] = newList();
-  }
-
   G->colors = (char *)malloc((n + 1) * sizeof(char));
   G->parents = (int *)malloc((n + 1) * sizeof(int));
   G->distance = (int *)malloc((n + 1) * sizeof(int));
+  for(int i = 1; i < n + 1; i++){
+    G->lists[i] = newList();
+    G->parents[i] = NIL;
+    G->distance[i] = INF;
+  }
 
   G->vertices = n;
   G->edges = 0;
-  G->source = 0;
+  G->source = NIL;
   return G;
 }
 
@@ -76,21 +77,33 @@ int getSize(Graph G){
 // Returns the source vertex most recently used in function BFS()
 // Returns NIL if BFS() has not yet been called.
 int getSource(Graph G){
-  return 0;
+  if (G == NULL){
+    printf("Graph Error: calling getSource() on NULL Graph reference\n");
+    exit(EXIT_FAILURE);
+  }
+  return G->source;
 }
 
 // Returns the parent of vertex u in the Breadth-First tree created by BFS()
 // Returns NIL if BFS() has not yet been called.
 // pre: i <= u <= getOrder(G)
 int getParent(Graph G, int u){
-  return 0;
+  if (G == NULL){
+    printf("Graph Error: calling getSource() on NULL Graph reference\n");
+    exit(EXIT_FAILURE);
+  }
+  return G->parents[u];
 }
 
 // Returns the distance from the most recent BFS source to vertex u
 // Returns INF if BFS() has not yet been called.
 // pre: i <= u <= getOrder(G)
 int getDist(Graph G, int u){
-  return 0;
+  if (G == NULL){
+    printf("Graph Error: calling getSource() on NULL Graph reference\n");
+    exit(EXIT_FAILURE);
+  }
+  return G->distance[u];
 }
 
 // Appends to the List L the vertices of a shortest path in G from source to u
@@ -98,7 +111,22 @@ int getDist(Graph G, int u){
 // pre: getSource(G) != NIL
 // pre: i <= u <= getOrder(G)
 void getPath(List L, Graph G, int u){
-
+  if (G == NULL){
+    printf("Graph Error: calling getpath() on NULL Graph reference\n");
+    exit(EXIT_FAILURE);
+  }
+  if(getSource(G) == NIL){
+    printf("Graph Error: calling getpath() with no source\n");
+    exit(EXIT_FAILURE);
+  }
+  if(u == getSource(G)){
+    append(L, getSource(G));
+  } else if (G->parents[u] == NIL){
+    append(L, NIL);
+  } else{
+    getPath(L, G, G->parents[u]);
+    append(L, u);
+  }
 }
 
 // deletes all edges of G, restoring it to its original (no edge) state.
@@ -151,6 +179,7 @@ void addArc(Graph G, int u, int v){
 // Runs the BFA algorithm on the Graph G with source s
 // Sets the color, distance, parent, and source fields of G accordingly.
 void BFS(Graph G, int s){
+  G->source = s;
   for(int i = 1; i < G->vertices + 1; i++){
     if(i == s){
       continue;
@@ -166,10 +195,12 @@ void BFS(Graph G, int s){
   List Q = newList();
   append(Q, s);
   int x = 0;
-  while(index(Q) > 0){
+  int y = 0;
+  while(length(Q) > 0){
     x = front(Q);
     deleteFront(Q);
-    for(int y = 1; y < G->vertices + 1; y++){
+    for(moveFront(G->lists[x]); index(G->lists[x])>=0; moveNext(G->lists[x])){
+      y = get(G->lists[x]);
       if(G->colors[y] == 'w'){
         G->colors[y] = 'g';
         G->distance[y] = G->distance[x] + 1;
