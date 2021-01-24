@@ -25,7 +25,7 @@ Graph newGraph(int n){
   Graph G = malloc(sizeof(GraphObj));
 
   G->lists = (List *)malloc((n + 1) * sizeof(List));
-  for(int i = 1; i < n; i++){
+  for(int i = 1; i < n + 1; i++){
     G->lists[i] = newList();
   }
 
@@ -43,7 +43,7 @@ Graph newGraph(int n){
 // *pG to NULL.
 void freeGraph(Graph* pG){
   if(pG != NULL && *pG != NULL){
-    for(int i = 0; i < (*pG)->vertices; i++) {
+    for(int i = 0; i < (*pG)->vertices + 1; i++) {
       freeList(&(*pG)->lists[i]);
     }
     free((*pG)->lists);
@@ -58,7 +58,7 @@ void freeGraph(Graph* pG){
 // Returns the number of vertices of the graph.
 int getOrder(Graph G){
   if (G == NULL){
-    printf("List Error: calling getOrder() on NULL Graph reference\n");
+    printf("Graph Error: calling getOrder() on NULL Graph reference\n");
     exit(EXIT_FAILURE);
   }
   return G->vertices;
@@ -67,7 +67,7 @@ int getOrder(Graph G){
 // Returns the number of edges of the graph.
 int getSize(Graph G){
   if (G == NULL){
-    printf("List Error: calling getSize() on NULL Graph reference\n");
+    printf("Graph Error: calling getSize() on NULL Graph reference\n");
     exit(EXIT_FAILURE);
   }
   return G->edges;
@@ -110,14 +110,42 @@ void makeNull(Graph G){
 // i.e: u is added to the adjacency List of v, and v to the adjacency List of u.
 // pre: Their two int arguments must lie in the range 1 to getOrder(G)
 void addEdge(Graph G, int u, int v){
-
+  addArc(G, u, v);
+  addArc(G, v, u);
+  G->edges--;
 }
 
 // Inserts a new directed edge from u to v
 // i.e: v is added to the adjacency List of u (but not u to the adjacency List of v)
 // pre: Their two int arguments must lie in the range 1 to getOrder(G)
 void addArc(Graph G, int u, int v){
+  if (G == NULL){
+    printf("Graph Error: calling addArc() on NULL Graph reference\n");
+    exit(EXIT_FAILURE);
+  }
+  if (u < 1 || u > getOrder(G) || v < 1 || v > getOrder(G)){
+    printf("Graph Error: int arguments outside of range 1 to getOrder(G)\n");
+    exit(EXIT_FAILURE);
+  }
+  if(length(G->lists[u]) > 0){
+    moveBack(G->lists[u]);
+    while(index(G->lists[u]) >= 0){
+      if(v > get(G->lists[u])){
+        insertAfter(G->lists[u], v);
+        break;
+      } else {
+        movePrev(G->lists[u]);
+      }
+      if(index(G->lists[u]) < 0){
+        prepend(G->lists[u], v);
+        break;
+      }
+    }
+  } else {
+    append(G->lists[u], v);
+  }
 
+  G->edges++;
 }
 
 // Runs the BFA algorithm on the Graph G with source s
@@ -128,5 +156,14 @@ void BFS(Graph G, int s){
 
 // Prints the adjacency list representation of G to the file pointed to by out.
 void printGraph(FILE* out, Graph G){
+  if(G == NULL){
+    printf("Graph Error: calling printGraph() on NULL List reference\n");
+    exit(EXIT_FAILURE);
+  }
 
+  for(int i = 1; i < G->vertices + 1; i++){
+    printf("%d: ", i);
+    printList(out, G->lists[i]);
+    printf("\n");
+  }
 }
