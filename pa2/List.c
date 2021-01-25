@@ -301,15 +301,15 @@ void insertBefore(List L, int x){
   Node N = newNode(x);
 
   if(L == NULL){
-    printf("List Error: calling insertAfter() on NULL List reference\n");
+    printf("List Error: calling insertBefore() on NULL List reference\n");
     exit(EXIT_FAILURE);
   }
   if(length(L) <= 0){
-    printf("List Error: calling insertAfter() on an empty List\n");
+    printf("List Error: calling insertBefore() on an empty List\n");
     exit(EXIT_FAILURE);
   }
   if(index(L) < 0){
-    printf("List Error: calling insertAfter() on an undefined cursor element\n");
+    printf("List Error: calling insertBefore() on an undefined cursor element\n");
     exit(EXIT_FAILURE);
   }
   if(L->cursor == L->front){
@@ -357,10 +357,14 @@ void insertAfter(List L, int x){
     printf("List Error: calling insertAfter() on an undefined cursor element\n");
     exit(EXIT_FAILURE);
   }
+
   N->next = L->cursor->next;
-  N->prev = L->cursor;
   L->cursor->next = N;
   L->cursor->next->prev = N;
+  N->prev = L->cursor;
+  if(L->cursor->next->next != NULL){
+    L->cursor->next->next->prev = N;
+  }
   L->length++;
   if(L->cursor == L->back){
     L->back->next->prev = L->back;
