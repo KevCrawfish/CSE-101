@@ -221,8 +221,8 @@ void printGraph(FILE* out, Graph G){
   }
 
   for(int i = 1; i < G->vertices + 1; i++){
-    printf("%d: ", i);
+    fprintf(out, "%d: ", i);
     printList(out, G->lists[i]);
-    printf("\n");
+    fprintf(out, "\n");
   }
 }
