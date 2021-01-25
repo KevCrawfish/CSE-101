@@ -11,7 +11,7 @@
 int main(int argc, char* argv[]){
 
   FILE *in, *out;
-  int vertices = 0;
+  int vertices, i = 0;
   int edges[5000];
 
   ////////////////////////////////////////////////////////
@@ -41,8 +41,13 @@ int main(int argc, char* argv[]){
   //
   ////////////////////////////////////////////////////////
 
+  ////////////////////////////////////////////////////////
+  // scan first line of input file for # of vertices
+  // make new graph with # of vertices
+  // read input file for edges util zero
+  // save edges into array
+  //
   fscanf(in, "%d", &vertices);
-  int i = 0;
   Graph G = newGraph(vertices);
 
   while(1){
@@ -55,7 +60,14 @@ int main(int argc, char* argv[]){
       i++;
     }
   }
+  //
+  ////////////////////////////////////////////////////////
 
+
+  ////////////////////////////////////////////////////////
+  // read second part of input file for paths until zero
+  // save into array
+  //
   while(1){
     fscanf(in, "%d", &edges[i]);
     if(edges[i] == 0){
@@ -64,7 +76,13 @@ int main(int argc, char* argv[]){
       i++;
     }
   }
+  //
+  ////////////////////////////////////////////////////////
 
+  ////////////////////////////////////////////////////////
+  // add all edges from first part of array to graph
+  // print adjaceny list of graph to outfile
+  //
   i = 0;
   while(1){
     if(edges[i] == 0){
@@ -77,7 +95,13 @@ int main(int argc, char* argv[]){
 
   printGraph(out, G);
   fprintf(out, "\n");
+  //
+  ////////////////////////////////////////////////////////
 
+  ////////////////////////////////////////////////////////
+  // find distance and shortest path from second part of array
+  // do a BFS to calculate the distance and path from source
+  //
   while(1){
     if(edges[i] == 0){
       break;
@@ -98,11 +122,17 @@ int main(int argc, char* argv[]){
     }
     i += 2;
   }
+  //
+  ////////////////////////////////////////////////////////
 
-
+  ////////////////////////////////////////////////////////
+  // close files and free any heap memory
+  //
   fclose(in);
   fclose(out);
   freeGraph(&G);
+  //
+  ////////////////////////////////////////////////////////
 
   return 0;
 }
