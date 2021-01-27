@@ -1,0 +1,7 @@
+Makefile - Makefile for CSE 101 Programming Assignment 2.
+List.h - Contains function headers for List.c.
+List.c - Doubly Linked List ADT implementation.
+Graph.h - Contains function headers for Graph.c.
+Graph.c - Graph ADT implementation.
+GraphTest.c - Test client for Graph ADT.
+FindComponents.c - Produces an adjacency list and finds strongly connected components of a digraph.
