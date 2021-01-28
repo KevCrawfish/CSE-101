@@ -71,6 +71,8 @@
  // Pre: length(S) == getOrder(G)
  void DFS(Graph G, List S);
 
+ void visit(Graph G, int x);
+
  // Returns a reference to a new graph object representing the transpose of G
  Graph transpose(Graph G);
 

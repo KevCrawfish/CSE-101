@@ -15,6 +15,9 @@ typedef struct GraphObj{
   char *colors;
   int *parents;
   int *distance;
+  int *discover;
+  int *finish;
+  int time;
   int vertices; //order
   int edges; //size
   int source;
@@ -28,14 +31,19 @@ Graph newGraph(int n){
   G->colors = (char *)malloc((n + 1) * sizeof(char));
   G->parents = (int *)malloc((n + 1) * sizeof(int));
   G->distance = (int *)malloc((n + 1) * sizeof(int));
+  G->discover = (int *)malloc((n + 1) * sizeof(int));
+  G->finish = (int *)malloc((n + 1) * sizeof(int));
   for(int i = 1; i < n + 1; i++){
     G->lists[i] = newList();
     G->parents[i] = NIL;
     G->distance[i] = INF;
+    G->discover[i] = 0;
+    G->finish[i] = 0;
   }
 
   G->vertices = n;
   G->edges = 0;
+  G->time = 0;
   G->source = NIL;
   return G;
 }
@@ -47,6 +55,8 @@ void freeGraph(Graph* pG){
     for(int i = 1; i < (*pG)->vertices + 1; i++) {
       freeList(&(*pG)->lists[i]);
     }
+    free((*pG)->finish);
+    free((*pG)->discover);
     free((*pG)->lists);
     free((*pG)->colors);
     free((*pG)->parents);
@@ -92,6 +102,9 @@ int getParent(Graph G, int u){
     printf("Graph Error: calling getSource() on NULL Graph reference\n");
     exit(EXIT_FAILURE);
   }
+  if(G->parents[u] == NIL){
+    return 0;
+  }
   return G->parents[u];
 }
 
@@ -132,13 +145,21 @@ void getPath(List L, Graph G, int u){
 // Returns the discover time from DFS()
 // pre: 1 <= u <= n = getOrder(G)
 int getDiscover(Graph G, int u){
-  return 0;
+  if (G == NULL){
+    printf("Graph Error: calling getDiscover() on NULL Graph reference\n");
+    exit(EXIT_FAILURE);
+  }
+  return G->discover[u];
 }
 
 // Returns the finish time from DFS()
 // pre: 1 <= u <= n = getOrder(G)
 int getFinish(Graph G, int u){
-  return 0;
+  if (G == NULL){
+    printf("Graph Error: calling getFinish() on NULL Graph reference\n");
+    exit(EXIT_FAILURE);
+  }
+  return G->finish[u];
 }
 
 // Inserts a new edge joining u to v
@@ -225,7 +246,53 @@ void BFS(Graph G, int s){
 // Stores the vertices by decreasing finish times.
 // Pre: length(S) == getOrder(G)
 void DFS(Graph G, List S){
+  if(length(S) != getOrder(G)){
+    printf("Graph Error: calling DFS() while List S != vertices of G\n");
+    exit(EXIT_FAILURE);
+  }
+  for(int i = 1; i <= G->vertices; i++){
+    G->colors[i] = 'w';
+    G->parents[i] = NIL;
+  }
+  G->time = 0;
+  for(int i = 1; i <= G->vertices; i++){
+    if(G->colors[i] == 'w'){
+      visit(G, i);
+    }
+  }
 
+  int array[length(S) + 1];
+  for(int i = 1; i <= G->vertices; i++){
+    array[i] = i;
+  }
+
+  for(int i = 1; i <= G->vertices; i++){
+    for(int j = 1; j <= G->vertices; j++){
+      if(G->finish[array[j]] < G->finish[array[i]]){
+        int tmp = array[j];
+        array[j] = array[i];
+        array[i] = tmp;
+      }
+    }
+  }
+  clear(S);
+  for(int i = 1; i <= G->vertices; i++){
+    append(S, array[i]);
+  }
+}
+
+void visit(Graph G, int x){
+  G->discover[x] = ++(G->time);
+  G->colors[x] = 'g';
+  for(moveFront(G->lists[x]); index(G->lists[x])>=0; moveNext(G->lists[x])){
+    int y = get(G->lists[x]);
+    if(G->colors[y] == 'w'){
+      G->parents[y] = x;
+      visit(G, y);
+    }
+  }
+  G->colors[x] = 'b';
+  G->finish[x] = ++(G->time);
 }
 
 // Prints the adjacency list representation of G to the file pointed to by out.
@@ -244,10 +311,34 @@ void printGraph(FILE* out, Graph G){
 
 // Returns a reference to a new graph object representing the transpose of G
 Graph transpose(Graph G){
-  return G;
+  Graph R = newGraph(G->vertices);
+
+  if(G == NULL){
+    printf("List Error: calling copyGraph() on NULL List reference\n");
+    exit(EXIT_FAILURE);
+  }
+  for(int i = 1; i <= G->vertices; i++){
+    for(moveFront(G->lists[i]); index(G->lists[i])>=0; moveNext(G->lists[i])){
+      addArc(R, get(G->lists[i]), i);
+    }
+  }
+
+  return R;
 }
 
 // Returns a reference to a new graph that is a copy of G
 Graph copyGraph(Graph G){
-  return G;
+  Graph R = newGraph(G->vertices);
+
+  if(G == NULL){
+    printf("List Error: calling copyGraph() on NULL List reference\n");
+    exit(EXIT_FAILURE);
+  }
+  for(int i = 1; i <= G->vertices; i++){
+    for(moveFront(G->lists[i]); index(G->lists[i])>=0; moveNext(G->lists[i])){
+      addArc(R, i, get(G->lists[i]));
+    }
+  }
+
+  return R;
 }
