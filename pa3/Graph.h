@@ -8,8 +8,9 @@
 
  #include "List.h"
 
- #define NIL -1
+ #define NIL 0
  #define INF 10000
+ #define UNDEF -2
 
  typedef struct GraphObj *Graph;
 
@@ -70,8 +71,6 @@
 
  // Pre: length(S) == getOrder(G)
  void DFS(Graph G, List S);
-
- void visit(Graph G, int x);
 
  // Returns a reference to a new graph object representing the transpose of G
  Graph transpose(Graph G);

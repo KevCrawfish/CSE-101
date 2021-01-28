@@ -17,7 +17,6 @@ typedef struct GraphObj{
   int *distance;
   int *discover;
   int *finish;
-  int time;
   int vertices; //order
   int edges; //size
   int source;
@@ -37,13 +36,12 @@ Graph newGraph(int n){
     G->lists[i] = newList();
     G->parents[i] = NIL;
     G->distance[i] = INF;
-    G->discover[i] = 0;
-    G->finish[i] = 0;
+    G->discover[i] = UNDEF;
+    G->finish[i] = UNDEF;
   }
 
   G->vertices = n;
   G->edges = 0;
-  G->time = 0;
   G->source = NIL;
   return G;
 }
@@ -101,9 +99,6 @@ int getParent(Graph G, int u){
   if (G == NULL){
     printf("Graph Error: calling getSource() on NULL Graph reference\n");
     exit(EXIT_FAILURE);
-  }
-  if(G->parents[u] == NIL){
-    return 0;
   }
   return G->parents[u];
 }
@@ -250,16 +245,33 @@ void DFS(Graph G, List S){
     printf("Graph Error: calling DFS() while List S != vertices of G\n");
     exit(EXIT_FAILURE);
   }
+
+  void visit(int x, int *time){
+    int y = 0;
+    G->discover[x] = ++(*time);
+    G->colors[x] = 'g';
+    for(moveFront(G->lists[x]); index(G->lists[x])>=0; moveNext(G->lists[x])){
+      y = get(G->lists[x]);
+      if(G->colors[y] == 'w'){
+        G->parents[y] = x;
+        visit(y, time);
+      }
+    }
+    G->colors[x] = 'b';
+    G->finish[x] = ++(*time);
+  }
+
   for(int i = 1; i <= G->vertices; i++){
     G->colors[i] = 'w';
-    G->parents[i] = NIL;
   }
-  G->time = 0;
-  for(int i = 1; i <= G->vertices; i++){
-    if(G->colors[i] == 'w'){
-      visit(G, i);
+  int time = 0;
+    for(moveFront(S); index(S)>=0; moveNext(S)){
+    if(G->colors[get(S)] == 'w'){
+      visit(get(S), &time);
     }
   }
+
+  /////////////////////////////////////
 
   int array[length(S) + 1];
   for(int i = 1; i <= G->vertices; i++){
@@ -279,20 +291,6 @@ void DFS(Graph G, List S){
   for(int i = 1; i <= G->vertices; i++){
     append(S, array[i]);
   }
-}
-
-void visit(Graph G, int x){
-  G->discover[x] = ++(G->time);
-  G->colors[x] = 'g';
-  for(moveFront(G->lists[x]); index(G->lists[x])>=0; moveNext(G->lists[x])){
-    int y = get(G->lists[x]);
-    if(G->colors[y] == 'w'){
-      G->parents[y] = x;
-      visit(G, y);
-    }
-  }
-  G->colors[x] = 'b';
-  G->finish[x] = ++(G->time);
 }
 
 // Prints the adjacency list representation of G to the file pointed to by out.
