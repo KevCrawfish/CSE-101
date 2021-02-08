@@ -22,10 +22,10 @@ ListClient.o : List.h ListClient.cpp
 	g++ -std=c++11 -Wall -c ListClient.cpp
 
 ListTest : ListTest.o List.o
-	g++ -std=c++11 -Wall -o ListTest ListTest.o List.o
+	g++ -g -std=c++11 -Wall -o ListTest ListTest.o List.o
 
 ListTest.o : List.h ListTest.cpp
-	g++ -std=c++11 -Wall -c ListTest.cpp
+	g++ -g -std=c++11 -Wall -c ListTest.cpp
 
 List.o : List.h List.cpp
 	g++ -std=c++11 -Wall -c List.cpp

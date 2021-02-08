@@ -52,9 +52,7 @@ List::List(const List& L){
 
 // Destructor
 List::~List(){
-  while(num_elements > 0){
-    eraseAfter();
-  }
+
 }
 
 
@@ -86,16 +84,16 @@ int List::position(){
 // Moves cursor to position 0 in this List.
 void List::moveFront(){
   pos_cursor = 0;
-  beforeCursor = frontDummy;
-  afterCursor = frontDummy->next;
+  beforeCursor = nullptr;
+  afterCursor = frontDummy;
 }
 
 // moveBack()
 // Moves cursor to position size() in this List.
 void List::moveBack(){
   pos_cursor = num_elements;
-  beforeCursor = backDummy->prev;
-  afterCursor = backDummy;
+  beforeCursor = backDummy;
+  afterCursor = nullptr;
 }
 
 // peekNext()
@@ -105,7 +103,7 @@ int List::peekNext(){
   if( pos_cursor >= num_elements){
    cerr << "List Error: calling peekNext on a NULL list element" << endl;
    exit(EXIT_FAILURE);
-}
+ }
 
   return afterCursor->data;
 }
@@ -115,9 +113,9 @@ int List::peekNext(){
 // pre: position()>0
 int List::peekPrev(){
   if( pos_cursor == 0){
-   cerr << "List Error: calling peekNext on a NULL list element" << endl;
+   cerr << "List Error: calling peekPrev on a NULL list element" << endl;
    exit(EXIT_FAILURE);
-}
+ }
 
   return beforeCursor->data;
 }
@@ -127,7 +125,15 @@ int List::peekPrev(){
 // was passed over.
 // pre: position()<size()
 int List::moveNext(){
-  return 0;
+  if( pos_cursor >= num_elements){
+   cerr << "List Error: calling moveNext on a NULL list element" << endl;
+   exit(EXIT_FAILURE);
+ }
+
+  pos_cursor++;
+  beforeCursor = afterCursor;
+  afterCursor = afterCursor->next;
+  return beforeCursor->data;
 }
 
 // movePrev()
@@ -135,7 +141,15 @@ int List::moveNext(){
 // was passed over.
 // pre: position()>0
 int List::movePrev(){
-  return 0;
+  if( pos_cursor == 0){
+   cerr << "List Error: calling movePrev on a NULL list element" << endl;
+   exit(EXIT_FAILURE);
+ }
+
+ pos_cursor--;
+ afterCursor = beforeCursor;
+ beforeCursor = beforeCursor->prev;
+ return afterCursor->data;
 }
 
 // insertAfter()
@@ -145,13 +159,49 @@ void List::insertAfter(int x){
 
   if( isEmpty() ){
     frontDummy = backDummy = N;
+    afterCursor = N;
+    num_elements++;
+    return;
+  }
+
+  N->next = afterCursor;
+  afterCursor = N;
+  afterCursor->prev = beforeCursor;
+  N->prev = beforeCursor;
+  if(afterCursor->next != NULL){
+    afterCursor->next->prev = N;
+  }
+  num_elements++;
+  if(pos_cursor == 0){
+    backDummy = afterCursor;
   }
 }
 
 // insertBefore()
 // Inserts x before cursor.
 void List::insertBefore(int x){
+  Node *N = new Node(x);
 
+  if( isEmpty() ){
+    frontDummy = backDummy = N;
+    beforeCursor = N;
+    num_elements++;
+    pos_cursor++;
+    return;
+  }
+
+  N->prev = beforeCursor;
+  beforeCursor = N;
+  beforeCursor->next = afterCursor;
+  N->next = afterCursor;
+  if(beforeCursor->prev != NULL){
+    beforeCursor->prev->next = N;
+  }
+  num_elements++;
+  pos_cursor++;
+  if(pos_cursor == num_elements){
+    frontDummy = beforeCursor;
+  }
 }
 
 // eraseAfter()
