@@ -1,5 +1,5 @@
-Makefile
-List.h
-List.cpp
-ListTest.cpp
-Shuffle.cpp
+Makefile - Makefile for ListTest and Shuffle.
+List.h - Implementation file for List ADT.
+List.cpp - Header file for List ADT.
+ListTest.cpp - A test client for List ADT.
+Shuffle.cpp - Uses the list ADT to perform shuffling operations.
