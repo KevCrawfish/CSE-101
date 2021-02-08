@@ -11,14 +11,25 @@ using namespace std;
 
 int main(){
   List A;
+  A.insertAfter(77);
+  A.insertAfter(55);
   A.insertAfter(1);
-  A.insertAfter(2);
-  A.moveNext();
-  A.insertBefore(3);
-  A.movePrev();
-  return 0;
-  A.insertBefore(5);
-  A.insertBefore(12);
-  if (A.size() != 5) return 0;
+  A.insertAfter(34);
+  A.insertAfter(1);
+  A.insertAfter(77);
+  A.insertAfter(77);
+  A.insertAfter(34);
+  if (A.findNext(99) != -1) return 0;
+  if (A.position() != A.size()) return 0;
+
+  A.moveFront();
+  if (A.findNext(1) != 4) return 0;
+  if (A.findNext(1) != 6) return 0;
+  if (A.findNext(1) != -1) return 0;
+
+  A.moveFront();
+  A.cleanup();
+  if (A.findNext(1) != 3) return 6;
+  if (A.findNext(1) != -1) return 7;
   return 0;
 }
