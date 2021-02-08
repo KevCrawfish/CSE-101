@@ -34,12 +34,27 @@ List::List(){
 
 // Copy constructor.
 List::List(const List& L){
+  // make empty list
+  frontDummy = nullptr;
+  backDummy = nullptr;
+  beforeCursor = nullptr;
+  afterCursor = nullptr;
+  pos_cursor = 0;
+  num_elements = 0;
 
+  // load elements of list into this
+  Node *N = L.backDummy;
+  while(N != nullptr){
+    this->insertBefore(N->data);
+    N = N->next;
+  }
 }
 
 // Destructor
 List::~List(){
-
+  while(num_elements > 0){
+    eraseAfter();
+  }
 }
 
 
@@ -54,14 +69,14 @@ bool List::isEmpty(){
 // size()
 // Returns the size of this List.
 int List::size(){
-  return 0;
+  return num_elements;
 }
 
 // position()
 // Returns the position of the cursor in this List. The value returned
 // will be in the range 0 to size().
 int List::position(){
-  return 0;
+  return pos_cursor;
 }
 
 
@@ -70,27 +85,41 @@ int List::position(){
 // moveFront()
 // Moves cursor to position 0 in this List.
 void List::moveFront(){
-
+  pos_cursor = 0;
+  beforeCursor = frontDummy;
+  afterCursor = frontDummy->next;
 }
 
 // moveBack()
 // Moves cursor to position size() in this List.
 void List::moveBack(){
-
+  pos_cursor = num_elements;
+  beforeCursor = backDummy->prev;
+  afterCursor = backDummy;
 }
 
 // peekNext()
 // Returns the element after the cursor.
 // pre: position()<size()
 int List::peekNext(){
-  return 0;
+  if( pos_cursor >= num_elements){
+   cerr << "List Error: calling peekNext on a NULL list element" << endl;
+   exit(EXIT_FAILURE);
+}
+
+  return afterCursor->data;
 }
 
 // peekPrev()
 // Returns the element before the cursor.
 // pre: position()>0
 int List::peekPrev(){
-  return 0;
+  if( pos_cursor == 0){
+   cerr << "List Error: calling peekNext on a NULL list element" << endl;
+   exit(EXIT_FAILURE);
+}
+
+  return beforeCursor->data;
 }
 
 // moveNext()
@@ -112,7 +141,11 @@ int List::movePrev(){
 // insertAfter()
 // Inserts x after cursor.
 void List::insertAfter(int x){
+  Node *N = new Node(x);
 
+  if( isEmpty() ){
+    frontDummy = backDummy = N;
+  }
 }
 
 // insertBefore()
