@@ -231,6 +231,15 @@ void List::eraseAfter(){
  if(afterCursor == backDummy){
    backDummy = beforeCursor;
  }
+ if(afterCursor == frontDummy){
+   frontDummy = frontDummy->next;
+ }
+
+ if(afterCursor->next != nullptr && afterCursor->prev != nullptr){
+   afterCursor->prev->next = afterCursor->next;
+   afterCursor->next->prev = afterCursor->prev;
+ }
+
  afterCursor = afterCursor->next;
  num_elements--;
  delete N;
@@ -251,7 +260,10 @@ void List::eraseBefore(){
     frontDummy = afterCursor;
   }
   if(beforeCursor == backDummy){
-    backDummy = beforeCursor->prev;
+    backDummy = backDummy->prev;
+    if(backDummy != nullptr){
+      backDummy->next = nullptr;
+    }
   }
 
   if(beforeCursor->next != nullptr && beforeCursor->prev != nullptr){
@@ -351,11 +363,11 @@ void List::cleanup(){
 // clear()
 // Deletes all elements in this List, setting it to the empty state.
 void List::clear(){
-  while(pos_cursor > 0){
-    eraseBefore();
-  }
-  while(num_elements > 0){
-    eraseAfter();
+  if(!isEmpty()){
+    moveBack();
+    while(!isEmpty()){
+      eraseBefore();
+    }
   }
 }
 
@@ -386,7 +398,14 @@ List List::concat(const List& L){
 // Returns a string representation of this List consisting of a comma
 // separated sequence of elements, surrounded by parentheses.
 std::string List::to_string(){
-  return 0;
+  Node *N = nullptr;
+  string s = "";
+
+  for(N = frontDummy; N != nullptr; N = N->next){
+    s += std::to_string(N->data)+" ";
+  }
+
+  return s;
 }
 
 // equals()
