@@ -54,7 +54,9 @@ List::List(const List& L){
 
 // Destructor
 List::~List(){
-
+  clear();
+  delete frontDummy;
+  delete backDummy;
 }
 
 
@@ -318,13 +320,8 @@ int List::findPrev(int x){
 // elements, i.e. it lies between the same two retained elements that it
 // did before cleanup() was called.
 void List::cleanup(){
-  int start = 0;
+  int pos = pos_cursor;
 
-  if(pos_cursor == num_elements){
-    start = beforeCursor->data;
-  } else {
-    start = afterCursor->data;
-  }
   int count = 0;
   moveFront();
   while(count < num_elements){
@@ -337,14 +334,17 @@ void List::cleanup(){
       moveNext();
       if(beforeCursor->data == data){
         eraseBefore();
+        if(pos_cursor < pos){
+          pos--;
+        }
       }
     }
 
     moveFront();
     count++;
   }
-  if(start != afterCursor->data){
-    findNext(start);
+  for(int i = 0; i < pos; i++){
+    moveNext();
   }
 }
 
