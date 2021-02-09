@@ -248,6 +248,15 @@ void List::eraseBefore(){
   if(beforeCursor == frontDummy){
     frontDummy = afterCursor;
   }
+  if(beforeCursor == backDummy){
+    backDummy = beforeCursor->prev;
+  }
+
+  if(beforeCursor->next != nullptr && beforeCursor->prev != nullptr){
+    beforeCursor->prev->next = beforeCursor->next;
+    beforeCursor->next->prev = beforeCursor->prev;
+  }
+
   beforeCursor = beforeCursor->prev;
   pos_cursor--;
   num_elements--;
@@ -309,13 +318,45 @@ int List::findPrev(int x){
 // elements, i.e. it lies between the same two retained elements that it
 // did before cleanup() was called.
 void List::cleanup(){
+  int start = 0;
 
+  if(pos_cursor == num_elements){
+    start = beforeCursor->data;
+  } else {
+    start = afterCursor->data;
+  }
+  int count = 0;
+  moveFront();
+  while(count < num_elements){
+    for(int i = 0; i < count; i++){
+      moveNext();
+    }
+    int data = afterCursor->data;
+    moveNext();
+    while( pos_cursor < num_elements){
+      moveNext();
+      if(beforeCursor->data == data){
+        eraseBefore();
+      }
+    }
+
+    moveFront();
+    count++;
+  }
+  if(start != afterCursor->data){
+    findNext(start);
+  }
 }
 
 // clear()
 // Deletes all elements in this List, setting it to the empty state.
 void List::clear(){
-
+  while(pos_cursor > 0){
+    eraseBefore();
+  }
+  while(num_elements > 0){
+    eraseAfter();
+  }
 }
 
 // concat()
@@ -359,7 +400,7 @@ bool List::equals(const List& R){
   eq = ( this->num_elements == R.num_elements);
   N = this->frontDummy;
   M = R.frontDummy;
-  while(eq && N != nullptr){
+  while(eq && N != nullptr && M != nullptr){
     eq = (N->data == M->data);
     N = N->next;
     M = M->next;

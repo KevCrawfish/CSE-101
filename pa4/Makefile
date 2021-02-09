@@ -28,7 +28,7 @@ ListTest.o : List.h ListTest.cpp
 	g++ -g -std=c++11 -Wall -c ListTest.cpp
 
 List.o : List.h List.cpp
-	g++ -std=c++11 -Wall -c List.cpp
+	g++ -g -std=c++11 -Wall -c List.cpp
 
 clean :
 	rm -f Shuffle Shuffle.o ListClient ListClient.o List.o
