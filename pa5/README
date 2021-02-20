@@ -1,0 +1,5 @@
+Makefile - Makefile for DictionaryTest and Lex.
+Dictionary.h - Header file for Dictionary ADT storing (key, value) pairs of types KEY_TYPE and VAL_TYPE.
+Dictionary.c - Implementation file for Dictionary ADT.
+DictionaryTest.c - Test client for Dictionary ADT.
+Lex.c - Uses the Dictionary ADT to alphabetize lines in a file.
