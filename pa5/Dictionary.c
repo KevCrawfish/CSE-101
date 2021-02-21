@@ -217,6 +217,7 @@ void delete(Dictionary D, KEY_TYPE k){
     y->left = z->left;
     y->left->parent = y;
   }
+  free(z->key);
   free(z);
   D->size--;
   D->look = D->root;
