@@ -6,15 +6,50 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
-#include "Dictionary.h"
+#include"Dictionary.h"
 
 // Exported type --------------------------------------------------------------
+
+// private NodeObj type
+typedef struct NodeObj{
+  KEY_TYPE key;
+  VAL_TYPE val;
+  struct NodeObj *left;
+  struct NodeObj *right;
+  struct NodeObj *parent;
+} NodeObj;
+
+// private Node type
+typedef NodeObj *Node;
+
 typedef struct DictionaryObj{
-
-} DictionoaryObj;
-
+  Node root;
+  Node nil;
+  Node cursor;
+  int uniq;
+  int size;
+} DictionaryObj;
 
 // Constructors-Destructors ---------------------------------------------------
+
+// Returns reference to new Node object. Initializes next and data fields.
+Node newNode(KEY_TYPE k, VAL_TYPE v){
+  Node N = malloc(sizeof(NodeObj));
+  N->key = k;
+  N->val = v;
+  N->left = NULL;
+  N->right = NULL;
+  N->parent = NULL;
+  return N;
+}
+
+// Frees heap memory pointed to by *pN, sets *pN to NULL.
+void freeNode(Node *pN){
+  if(pN != NULL && *pN != NULL){
+    free(*pN);
+    *pN = NULL;
+  }
+}
 
 // newDictionary()
 // Creates a new empty Dictionary. If unique==false (0), then the Dictionary
@@ -23,13 +58,23 @@ typedef struct DictionaryObj{
 // accepted. In this case, the operation insert(D, k) will enforce the
 // precondition: lookup(D, k)==VAL_UNDEF
 Dictionary newDictionary(int unique){
-  return 0;
+  Dictionary D = malloc(sizeof(DictionaryObj));
+  Node NIL = newNode(KEY_UNDEF, VAL_UNDEF);
+  D->nil = NIL;
+  D->root = D->nil;
+  D->root->left = D->nil;
+  D->root->right = D->nil;
+  D->root->parent = D->nil;
+  D->cursor = D->root;
+  D->uniq = unique;
+  D->size = 0;
+  return D;
 }
 
 // freeDictionary()
 // Frees heap memory associated with *pD, sets *pD to NULL.
 void freeDictionary(Dictionary* pD){
-
+// todo last
 }
 
 
@@ -38,14 +83,14 @@ void freeDictionary(Dictionary* pD){
 // size()
 // Returns the number of (key, value) pairs in Dictionary D.
 int size(Dictionary D){
-  return 0;
+  return D->size;
 }
 
 // getUnique()
 // Returns true (1) if D requires that all pairs have unique keys. Returns
 // false (0) if D accepts distinct pairs with identical keys.
 int getUnique(Dictionary D){
-  return 0;
+  return D->uniq;
 }
 
 // lookup()
@@ -53,7 +98,15 @@ int getUnique(Dictionary D){
 // KEY_CMP(key, k)==0), then returns value. If D contains no such pair, then
 // returns VAL_UNDEF.
 VAL_TYPE lookup(Dictionary D, KEY_TYPE k){
-  return 0;
+  if(D->cursor == D->nil || KEY_CMP(D->cursor->key, k) == 0){
+    return D->cursor->val;
+  } else if (KEY_CMP(k, D->cursor->key) < 0){
+    D->cursor = D->cursor->left;
+    return lookup(D, k);
+  } else { // k > D->cursor->key
+    D->cursor = D->cursor->right;
+    return lookup(D, k);
+  }
 }
 
 
@@ -65,14 +118,86 @@ VAL_TYPE lookup(Dictionary D, KEY_TYPE k){
 // If getUnique(D) is true (1), then the precondition lookup(D, k)==VAL_UNDEF
 // is enforced.
 void insert(Dictionary D, KEY_TYPE k, VAL_TYPE v){
+  if(getUnique(D)){
+    D->cursor = D->root;
+    if(lookup(D, k) != VAL_UNDEF){
+      return;
+    }
+  }
 
+  Node z = newNode(k, v);
+  Node y = D->nil;
+  Node x = D->root;
+  while(x != D->nil){
+    y = x;
+    if(KEY_CMP(z->key, x->key) < 0){
+      x = x->left;
+    } else {
+      x = x->right;
+    }
+  }
+  z->parent = y;
+  z->left = D->nil;
+  z->right = D->nil;
+  if(y == D->nil){
+    D->root = z;
+  } else if (KEY_CMP(z->key, y->key) < 0){
+    y->left = z;
+  } else {
+    y->right = z;
+  }
+  D->size++;
+}
+
+// Helper function for delete
+void Transplant(Dictionary D, Node u, Node v){
+  if(u->parent == D->nil){
+    D->root = v;
+  } else if (u == u->parent->left){
+    u->parent->left = v;
+  } else {
+    u->parent->right = v;
+  }
+  if(v != D->nil){
+    v->parent = u->parent;
+  }
+}
+
+// Finds the leftmost node of the tree.
+Node TreeMin(Dictionary D, Node z){
+  Node x = z;
+  while(x->left != D->nil){
+    x = x->left;
+  }
+  return x;
 }
 
 // delete()
 // Remove the pair whose key is k from Dictionary D.
 // Pre: lookup(D,k)!=VAL_UNDEF (i.e. D contains a pair whose key is k.)
 void delete(Dictionary D, KEY_TYPE k){
+  D->cursor = D->root;
+  if(lookup(D, k) == VAL_UNDEF){
+    return;
+  }
+  Node z = D->cursor;
 
+  if(z->left == D->nil){
+    Transplant(D, z, z->right);
+  } else if (z->right == D->nil){
+    Transplant(D, z, z->left);
+  } else {
+    Node y = TreeMin(D, z->right);
+    if(y->parent != z){
+      Transplant(D, y, y->right);
+      y->right = z->right;
+      y->right->parent = y;
+    }
+    Transplant(D, z, y);
+    y->left = z->left;
+    y->left->parent = y;
+  }
+  D->size--;
 }
 
 // makeEmpty()
