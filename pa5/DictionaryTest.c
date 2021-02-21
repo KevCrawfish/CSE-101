@@ -9,11 +9,13 @@
 #include"Dictionary.h"
 
 int main(int argc, char* argv[]){
-  Dictionary B = newDictionary(0);
-  insert(B, "d", 2);
-  insert(B, "d", 5);
-  delete(B, "d");
-  if (lookup(B, "d") != 5) return 0;
-  printf("ok ");
+  Dictionary A = newDictionary(1);
+  insert(A, "c", 3);
+  insert(A, "b", 2);
+  insert(A, "a", 1);
+  beginForward(A);
+  makeEmpty(A);
+  if (currentKey(A) != KEY_UNDEF || currentVal(A) != VAL_UNDEF || size(A) != 0) return 0;
+  freeDictionary(&A);
   return 0;
 }

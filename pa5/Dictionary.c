@@ -76,7 +76,12 @@ Dictionary newDictionary(int unique){
 // freeDictionary()
 // Frees heap memory associated with *pD, sets *pD to NULL.
 void freeDictionary(Dictionary* pD){
-// todo last
+  if(pD != NULL && *pD != NULL){
+    makeEmpty(*pD);
+    free((*pD)->nil);
+    free(*pD);
+    pD = NULL;
+  }
 }
 
 
@@ -175,6 +180,15 @@ Node TreeMin(Dictionary D, Node z){
   return x;
 }
 
+// Finds the rightmost node of the tree.
+Node TreeMax(Dictionary D, Node z){
+  Node x = z;
+  while(x->right != D->nil){
+    x = x->right;
+  }
+  return x;
+}
+
 // delete()
 // Remove the pair whose key is k from Dictionary D.
 // Pre: lookup(D,k)!=VAL_UNDEF (i.e. D contains a pair whose key is k.)
@@ -203,6 +217,7 @@ void delete(Dictionary D, KEY_TYPE k){
     y->left = z->left;
     y->left->parent = y;
   }
+  free(z);
   D->size--;
   D->look = D->root;
 }
@@ -210,10 +225,10 @@ void delete(Dictionary D, KEY_TYPE k){
 // makeEmpty()
 // Reset Dictionary D to the empty state, containing no pairs.
 void makeEmpty(Dictionary D){
-  while(D->root != D->nil){
-    delete(D, D->root->key);
+  while(size(D) != 0){
+    beginForward(D);
+    delete(D, currentKey(D));
   }
-  delete(D, D->root->key);
 }
 
 // beginForward()
@@ -289,12 +304,12 @@ VAL_TYPE next(Dictionary D){
 // returns VAL_UNDEF.
 VAL_TYPE prev(Dictionary D){
   Node x = D->cursor;
-  if(x->parent != D->nil){
-    D->cursor = TreeMin(D, x->parent);
+  if(x->left != D->nil){
+    D->cursor = TreeMax(D, x->left);
     return D->cursor->val;
   }
   Node y = x->parent;
-  while(y != D->nil && x == y->right){
+  while(y != D->nil && x == y->left){
     x = y;
     y = y->parent;
   }
@@ -311,5 +326,8 @@ VAL_TYPE prev(Dictionary D){
 // single space.  The pairs are printed in the order defined by the operator
 // KEY_CMP().
 void printDictionary(FILE* out, Dictionary D){
-
+  VAL_TYPE x;
+  for(x=beginForward(D); currentVal(D)!=VAL_UNDEF; x=next(D)){
+     printf("%s %d\n", currentKey(D), x);
+  }
 }
