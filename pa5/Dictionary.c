@@ -26,6 +26,7 @@ typedef struct DictionaryObj{
   Node root;
   Node nil;
   Node cursor;
+  Node look;
   int uniq;
   int size;
 } DictionaryObj;
@@ -66,6 +67,7 @@ Dictionary newDictionary(int unique){
   D->root->right = D->nil;
   D->root->parent = D->nil;
   D->cursor = D->root;
+  D->look = D->root;
   D->uniq = unique;
   D->size = 0;
   return D;
@@ -98,13 +100,13 @@ int getUnique(Dictionary D){
 // KEY_CMP(key, k)==0), then returns value. If D contains no such pair, then
 // returns VAL_UNDEF.
 VAL_TYPE lookup(Dictionary D, KEY_TYPE k){
-  if(D->cursor == D->nil || KEY_CMP(D->cursor->key, k) == 0){
-    return D->cursor->val;
-  } else if (KEY_CMP(k, D->cursor->key) < 0){
-    D->cursor = D->cursor->left;
+  if(D->look == D->nil || KEY_CMP(D->look->key, k) == 0){
+    return D->look->val;
+  } else if (KEY_CMP(k, D->look->key) < 0){
+    D->look = D->look->left;
     return lookup(D, k);
   } else { // k > D->cursor->key
-    D->cursor = D->cursor->right;
+    D->look = D->look->right;
     return lookup(D, k);
   }
 }
@@ -119,7 +121,7 @@ VAL_TYPE lookup(Dictionary D, KEY_TYPE k){
 // is enforced.
 void insert(Dictionary D, KEY_TYPE k, VAL_TYPE v){
   if(getUnique(D)){
-    D->cursor = D->root;
+    D->look = D->root;
     if(lookup(D, k) != VAL_UNDEF){
       return;
     }
@@ -147,6 +149,7 @@ void insert(Dictionary D, KEY_TYPE k, VAL_TYPE v){
     y->right = z;
   }
   D->size++;
+  D->look = D->root;
 }
 
 // Helper function for delete
@@ -176,11 +179,14 @@ Node TreeMin(Dictionary D, Node z){
 // Remove the pair whose key is k from Dictionary D.
 // Pre: lookup(D,k)!=VAL_UNDEF (i.e. D contains a pair whose key is k.)
 void delete(Dictionary D, KEY_TYPE k){
-  D->cursor = D->root;
+  if(D->cursor == D->nil || KEY_CMP(D->cursor->key, k) == 0){
+    D->cursor = D->nil;
+  }
+  D->look = D->root;
   if(lookup(D, k) == VAL_UNDEF){
     return;
   }
-  Node z = D->cursor;
+  Node z = D->look;
 
   if(z->left == D->nil){
     Transplant(D, z, z->right);
@@ -198,12 +204,16 @@ void delete(Dictionary D, KEY_TYPE k){
     y->left->parent = y;
   }
   D->size--;
+  D->look = D->root;
 }
 
 // makeEmpty()
 // Reset Dictionary D to the empty state, containing no pairs.
 void makeEmpty(Dictionary D){
-
+  while(D->root != D->nil){
+    delete(D, D->root->key);
+  }
+  delete(D, D->root->key);
 }
 
 // beginForward()
@@ -211,7 +221,12 @@ void makeEmpty(Dictionary D){
 // (as defined by the order operator KEY_CMP()), then returns the first
 // value. If D is empty, returns VAL_UNDEF.
 VAL_TYPE beginForward(Dictionary D){
-  return 0;
+  Node x = D->root;
+  while(x->left != D->nil){
+    x = x->left;
+  }
+  D->cursor = x;
+  return x->val;
 }
 
 // beginReverse()
@@ -219,14 +234,19 @@ VAL_TYPE beginForward(Dictionary D){
 // (as defined by the order operator KEY_CMP()), then returns the last
 // value. If D is empty, returns VAL_UNDEF.
 VAL_TYPE beginReverse(Dictionary D){
-  return 0;
+  Node x = D->root;
+  while(x->right != D->nil){
+    x = x->right;
+  }
+  D->cursor = x;
+  return x->val;
 }
 
 // currentKey()
 // If an iteration (forward or reverse) over D has started, returns the
 // the current key. If no iteration is underway, returns KEY_UNDEF.
 KEY_TYPE currentKey(Dictionary D){
-  return 0;
+  return D->cursor->key;
 }
 
 // currentVal()
@@ -234,7 +254,7 @@ KEY_TYPE currentKey(Dictionary D){
 // value corresponding to the current key. If no iteration is underway,
 // returns VAL_UNDEF.
 VAL_TYPE currentVal(Dictionary D){
-  return 0;
+  return D->cursor->val;
 }
 
 // next()
@@ -245,7 +265,18 @@ VAL_TYPE currentVal(Dictionary D){
 // ends the iteration and returns VAL_UNDEF. If no iteration is underway,
 // returns VAL_UNDEF.
 VAL_TYPE next(Dictionary D){
-  return 0;
+  Node x = D->cursor;
+  if(x->right != D->nil){
+    D->cursor = TreeMin(D, x->right);
+    return D->cursor->val;
+  }
+  Node y = x->parent;
+  while(y != D->nil && x == y->right){
+    x = y;
+    y = y->parent;
+  }
+  D->cursor = y;
+  return D->cursor->val;
 }
 
 
@@ -257,7 +288,18 @@ VAL_TYPE next(Dictionary D){
 // ends the iteration and returns VAL_UNDEF. If no iteration is underway,
 // returns VAL_UNDEF.
 VAL_TYPE prev(Dictionary D){
-  return 0;
+  Node x = D->cursor;
+  if(x->parent != D->nil){
+    D->cursor = TreeMin(D, x->parent);
+    return D->cursor->val;
+  }
+  Node y = x->parent;
+  while(y != D->nil && x == y->right){
+    x = y;
+    y = y->parent;
+  }
+  D->cursor = y;
+  return D->cursor->val;
 }
 
 
