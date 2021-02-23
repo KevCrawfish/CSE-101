@@ -47,8 +47,7 @@ int main(int argc, char* argv[]){
 
   ////////////////////////////////////////////////////////
   // read each line of input file
-  // save words from file into array
-  // append words into tree
+  // save words from file into tree
   //
   lines = 0;
   while(fgets(line, MAX_LEN, in) != NULL){

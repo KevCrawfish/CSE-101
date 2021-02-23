@@ -1,0 +1,5 @@
+Makefile - Makefile for DictionaryTest and Order.
+Dictionary.h - Header file for Dictionary ADT storing (key, value) pairs of types KEY_TYPE and VAL_TYPE.
+Dictionary.c - Implementation file for Dictionary ADT.
+DictionaryTest.c - Test client for Dictionary ADT.
+Order.c - Uses the Dictionary ADT to print keys from the dictionary in the orders given by the tree traversals.
