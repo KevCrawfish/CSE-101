@@ -13,6 +13,7 @@
 // private NodeObj type
 typedef struct NodeObj{
   KEY_TYPE key;
+  char color;
   VAL_TYPE val;
   struct NodeObj *left;
   struct NodeObj *right;
@@ -38,6 +39,7 @@ Node newNode(KEY_TYPE k, VAL_TYPE v){
   Node N = malloc(sizeof(NodeObj));
   N->key = k;
   N->val = v;
+  N->color = 'b';
   N->left = NULL;
   N->right = NULL;
   N->parent = NULL;
@@ -76,12 +78,7 @@ Dictionary newDictionary(int unique){
 // freeDictionary()
 // Frees heap memory associated with *pD, sets *pD to NULL.
 void freeDictionary(Dictionary* pD){
-  if(pD != NULL && *pD != NULL){
-    makeEmpty(*pD);
-    free((*pD)->nil);
-    free(*pD);
-    pD = NULL;
-  }
+// todo last
 }
 
 // Access functions -----------------------------------------------------------
@@ -104,18 +101,110 @@ int getUnique(Dictionary D){
 // KEY_CMP(key, k)==0), then returns value. If D contains no such pair, then
 // returns VAL_UNDEF.
 VAL_TYPE lookup(Dictionary D, KEY_TYPE k){
-  if(D->look == D->nil || KEY_CMP(D->look->key, k) == 0){
-    return D->look->val;
-  } else if (KEY_CMP(k, D->look->key) < 0){
-    D->look = D->look->left;
-    return lookup(D, k);
-  } else { // k > D->cursor->key
-    D->look = D->look->right;
-    return lookup(D, k);
+  D->look = D->root;
+
+  while(D->look != D->nil){
+    if(KEY_CMP(D->look->key, k) == 0){
+      return D->look->val;
+    } else if (KEY_CMP(k, D->look->key) < 0){
+      D->look = D->look->left;
+    } else { // k > D->cursor->key
+      D->look = D->look->right;
+    }
   }
+  return D->look->val;
 }
 
 // Manipulation procedures ----------------------------------------------------
+
+void LeftRotate(Dictionary D, Node x){
+  // set y
+  Node y = x->right;
+
+  // turn y's left subtree into x's right subtree
+  x->right = y->left;
+  if(y->left != D->nil){
+    y->left->parent = x;
+  }
+
+  // link y's parent to x
+  y->parent = x->parent;
+  if(x->parent == D->nil){
+    D->root = y;
+  } else if (x == x->parent->left){
+    x->parent->left = y;
+  } else {
+    x->parent->right = y;
+  }
+
+  // put x on y's left
+  y->left = x;
+  x->parent = y;
+}
+
+void RightRotate(Dictionary D, Node x){
+  // set y
+  Node y = x->left;
+
+  // turn y's right subtree into x's left subtree
+  x->left = y->right;
+  if(y->right != D->nil){
+    y->right->parent = x;
+  }
+
+  // link y's parent to x
+  y->parent = x->parent;
+  if(x->parent == D->nil){
+    D->root = y;
+  } else if (x == x->parent->right){
+    x->parent->right = y;
+  } else {
+    x->parent->left = y;
+  }
+
+  // put x on y's right
+  y->right = x;
+  x->parent = y;
+}
+
+void RB_InsertFixUp(Dictionary D, Node z){
+  while(z->parent->color == 'r'){
+    if(z->parent == z->parent->parent->left){
+      Node y = z->parent->parent->right;
+      if(y->color == 'r'){
+        z->parent->color = 'b';
+        y->color = 'b';
+        z->parent->parent->color = 'r';
+        z = z->parent->parent;
+      } else {
+        if(z == z->parent->right){
+          z = z->parent;
+          LeftRotate(D, z);
+        }
+        z->parent->color = 'b';
+        z->parent->parent->color = 'r';
+        RightRotate(D, z->parent->parent);
+      }
+    } else {
+      Node y = z->parent->parent->left;
+      if(y->color == 'r'){
+        z->parent->color = 'b';
+        y->color = 'b';
+        z->parent->parent->color = 'r';
+        z = z->parent->parent;
+      } else {
+        if(z == z->parent->left){
+          z = z->parent;
+          RightRotate(D, z);
+        }
+        z->parent->color = 'b';
+        z->parent->parent->color = 'r';
+        LeftRotate(D, z->parent->parent);
+      }
+    }
+  }
+  D->root->color = 'b';
+}
 
 // insert()
 // Insert the pair (k,v) into Dictionary D.
@@ -142,8 +231,6 @@ void insert(Dictionary D, KEY_TYPE k, VAL_TYPE v){
     }
   }
   z->parent = y;
-  z->left = D->nil;
-  z->right = D->nil;
   if(y == D->nil){
     D->root = z;
   } else if (KEY_CMP(z->key, y->key) < 0){
@@ -153,6 +240,11 @@ void insert(Dictionary D, KEY_TYPE k, VAL_TYPE v){
   }
   D->size++;
   D->look = D->root;
+
+  z->left = D->nil;
+  z->right = D->nil;
+  z->color = 'r';
+  RB_InsertFixUp(D, z);
 }
 
 // Helper function for delete
@@ -187,6 +279,61 @@ Node TreeMax(Dictionary D, Node z){
   return x;
 }
 
+void RB_DeleteFixUp(Dictionary D, Node x){
+  while(x != D->root && x->color == 'b'){
+    if(x == x->parent->left){
+      Node w = x->parent->right;
+      if(w->color == 'r'){
+        w->color = 'b';
+        x->parent->color = 'r';
+        LeftRotate(D, x->parent);
+        w = x->parent->right;
+      }
+      if(w->left->color == 'b' && w->right->color == 'b'){
+        w->color = 'r';
+        x = x->parent;
+      } else {
+        if(w->right->color == 'b'){
+          w->left->color = 'b';
+          w->color = 'r';
+          RightRotate(D, w);
+          w = x->parent->right;
+        }
+        w->color = x->parent->color;
+        x->parent->color = 'b';
+        x->right->color = 'b';
+        LeftRotate(D, x->parent);
+        x = D->root;
+      }
+    } else {
+      Node w = x->parent->left;
+      if(w->color == 'r'){
+        w->color = 'b';
+        x->parent->color = 'r';
+        RightRotate(D, x->parent);
+        w = x->parent->left;
+      }
+      if(w->right->color == 'b' && w->left->color == 'b'){
+        w->color = 'r';
+        x = x->parent;
+      } else {
+        if(w->left->color == 'b'){
+          w->right->color = 'b';
+          w->color = 'r';
+          LeftRotate(D, w);
+          w = x->parent->left;
+        }
+        w->color = x->parent->color;
+        x->parent->color = 'b';
+        w->left->color = 'b';
+        RightRotate(D, x->parent);
+        x = D->root;
+      }
+    }
+  }
+  x->color = 'b';
+}
+
 // delete()
 // Remove the pair whose key is k from Dictionary D.
 // Pre: lookup(D,k)!=VAL_UNDEF (i.e. D contains a pair whose key is k.)
@@ -199,14 +346,24 @@ void delete(Dictionary D, KEY_TYPE k){
     return;
   }
   Node z = D->look;
+  Node y = z;
+  Node y_og = z;
+  Node x = z;
+  y_og->color = y->color;
 
   if(z->left == D->nil){
+    x = z->right;
     Transplant(D, z, z->right);
   } else if (z->right == D->nil){
+    x = z->left;
     Transplant(D, z, z->left);
   } else {
-    Node y = TreeMin(D, z->right);
-    if(y->parent != z){
+    y = TreeMin(D, z->right);
+    y_og->color = y->color;
+    x = y->right;
+    if(y->parent == z){
+      x->parent = y;
+    } else {
       Transplant(D, y, y->right);
       y->right = z->right;
       y->right->parent = y;
@@ -214,8 +371,11 @@ void delete(Dictionary D, KEY_TYPE k){
     Transplant(D, z, y);
     y->left = z->left;
     y->left->parent = y;
+    y->color = z->color;
   }
-  free(z->key);
+  if(y_og->color == 'b'){
+    RB_DeleteFixUp(D, x);
+  }
   free(z);
   D->size--;
   D->look = D->root;

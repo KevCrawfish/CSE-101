@@ -22,7 +22,7 @@ TEST2_SRC        = $(TEST2).c
 ADT_OBJ          = $(ADT).o
 ADT_SRC          = $(ADT).c
 ADT_HDR          = $(ADT).h
-COMPILE          = gcc -std=c11 -Wall -c
+COMPILE          = gcc -std=c11 -Wall -c -g
 LINK             = gcc -std=c11 -Wall -o
 REMOVE           = rm -f
 MEMCHECK         = valgrind --leak-check=full
