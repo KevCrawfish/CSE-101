@@ -23,6 +23,7 @@ typedef struct NodeObj{
 // private Node type
 typedef NodeObj *Node;
 
+// private Dictionary type
 typedef struct DictionaryObj{
   Node root;
   Node nil;
@@ -75,10 +76,27 @@ Dictionary newDictionary(int unique){
   return D;
 }
 
+// Helper function for freeDictionary()
+// Deletes every node in a tree in post order.
+void PostOrderTreeDelete(Dictionary D, Node x){
+  if(x != D->nil){
+    PostOrderTreeDelete(D, x->left);
+    PostOrderTreeDelete(D, x->right);
+    free(x->key);
+    free(x);
+  }
+}
+
 // freeDictionary()
 // Frees heap memory associated with *pD, sets *pD to NULL.
 void freeDictionary(Dictionary* pD){
-// todo last
+  if(pD != NULL && *pD != NULL){
+  Node x = (*pD)->root;
+  PostOrderTreeDelete(*pD, x);
+  free((*pD)->nil);
+  free(*pD);
+  pD = NULL;
+}
 }
 
 // Access functions -----------------------------------------------------------
@@ -117,6 +135,8 @@ VAL_TYPE lookup(Dictionary D, KEY_TYPE k){
 
 // Manipulation procedures ----------------------------------------------------
 
+// Helper function for RB_InsertFixUp()
+// Rotates a tree left so that it satisfies RB tree rules
 void LeftRotate(Dictionary D, Node x){
   // set y
   Node y = x->right;
@@ -142,6 +162,8 @@ void LeftRotate(Dictionary D, Node x){
   x->parent = y;
 }
 
+// Helper function for RB_InsertFixUp()
+// Rotates a tree right so that it satisfies RB tree rules
 void RightRotate(Dictionary D, Node x){
   // set y
   Node y = x->left;
@@ -167,6 +189,8 @@ void RightRotate(Dictionary D, Node x){
   x->parent = y;
 }
 
+// Helper function for insert()
+// Fixes a tree after inserting so that it is balanced and satisfies RB tree rules
 void RB_InsertFixUp(Dictionary D, Node z){
   while(z->parent->color == 'r'){
     if(z->parent == z->parent->parent->left){
@@ -279,6 +303,8 @@ Node TreeMax(Dictionary D, Node z){
   return x;
 }
 
+// Helper function for Delete()
+// Fixes the balance of the tree after deleting so it still satisfies RB tree rules.
 void RB_DeleteFixUp(Dictionary D, Node x){
   while(x != D->root && x->color == 'b'){
     if(x == x->parent->left){
@@ -479,6 +505,8 @@ VAL_TYPE prev(Dictionary D){
 
 // Other operations -----------------------------------------------------------
 
+// Helper function for printDictionary()
+// Prints the contents of the tree in Pre Order
 void PreOrderTreeWalk(FILE* out, Dictionary D, Node x){
   if(x != D->nil){
     fprintf(out, "%s", x->key);
@@ -487,6 +515,8 @@ void PreOrderTreeWalk(FILE* out, Dictionary D, Node x){
   }
 }
 
+// Helper function for printDictionary()
+// Prints the contents of the tree in Post Order
 void PostOrderTreeWalk(FILE* out, Dictionary D, Node x){
   if(x != D->nil){
     PostOrderTreeWalk(out, D, x->left);
@@ -495,6 +525,8 @@ void PostOrderTreeWalk(FILE* out, Dictionary D, Node x){
   }
 }
 
+// Helper function for printDictionary()
+// Prints the contents of the tree In Order
 void InOrderTreeWalk(FILE* out, Dictionary D, Node x){
   if(x != D->nil){
     InOrderTreeWalk(out, D, x->left);
