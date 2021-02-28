@@ -479,11 +479,49 @@ VAL_TYPE prev(Dictionary D){
 
 // Other operations -----------------------------------------------------------
 
+void PreOrderTreeWalk(FILE* out, Dictionary D, Node x){
+  if(x != D->nil){
+    fprintf(out, "%s", x->key);
+    PreOrderTreeWalk(out, D, x->left);
+    PreOrderTreeWalk(out, D, x->right);
+  }
+}
+
+void PostOrderTreeWalk(FILE* out, Dictionary D, Node x){
+  if(x != D->nil){
+    PostOrderTreeWalk(out, D, x->left);
+    PostOrderTreeWalk(out, D, x->right);
+    fprintf(out, "%s", x->key);
+  }
+}
+
+void InOrderTreeWalk(FILE* out, Dictionary D, Node x){
+  if(x != D->nil){
+    InOrderTreeWalk(out, D, x->left);
+    fprintf(out, "%s", x->key);
+    InOrderTreeWalk(out, D, x->right);
+  }
+}
+
 // printDictionary()
 // Prints a text representation of D to the file pointed to by out. Each key-
 // value pair is printed on a single line, with the two items separated by a
 // single space.  The pairs are printed in the order defined by the operator
 // KEY_CMP().
 void printDictionary(FILE* out, Dictionary D, const char* ord){
-
+  if(KEY_CMP(ord, "in") == 0){
+    Node x = D->root;
+    InOrderTreeWalk(out, D, x);
+    return;
+  }
+  if(KEY_CMP(ord, "pre") == 0){
+    Node x = D->root;
+    PreOrderTreeWalk(out, D, x);
+    return;
+  }
+  if(KEY_CMP(ord, "post") == 0){
+    Node x = D->root;
+    PostOrderTreeWalk(out, D, x);
+    return;
+  }
 }
