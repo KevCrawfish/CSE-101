@@ -6,6 +6,8 @@
  #ifndef __LIST_H__
  #define __LIST_H__
 
+#define LIST_ELEMENT long
+
 typedef struct ListObj *List;
 
 // Creates and returns a new empty List.
@@ -16,26 +18,26 @@ List newList(void);
 void freeList(List* pL);
 
 // Returns the number of elements in L.
-int length(List L);
+LIST_ELEMENT length(List L);
 
 // Returns index of cursor element if defined, -1 otherwise.
-int index(List L);
+LIST_ELEMENT index(List L);
 
 // Returns front element of L. Pre: length()>0
-int front(List L);
+LIST_ELEMENT front(List L);
 
 // Returns back element of L. Pre: length()>0
-int back(List L);
+LIST_ELEMENT back(List L);
 
 // Returns cursor element of L. Pre: length()>0, index()>=0
-int get(List L);
+LIST_ELEMENT get(List L);
 
 // Resets L to its original empty state.
 void clear(List L);
 
 // Overwrites the cursor element’s data with x.
 // Pre: length()>0, index()>=0
-void set(List L, int x);
+void set(List L, LIST_ELEMENT x);
 
 // If L is non-empty, sets cursor under the front element,
 // otherwise does nothing.
@@ -59,19 +61,19 @@ void moveNext(List L);
 
 // Insert new element into L. If L is non-empty,
 // insertion takes place before front element.
-void prepend(List L, int x);
+void prepend(List L, LIST_ELEMENT x);
 
 // Insert new element into L. If L is non-empty,
 // insertion takes place after back element.
-void append(List L, int x);
+void append(List L, LIST_ELEMENT x);
 
 // Insert new element before cursor.
 // Pre: length()>0, index()>=0
-void insertBefore(List L, int x);
+void insertBefore(List L, LIST_ELEMENT x);
 
 // Insert new element after cursor.
 // Pre: length()>0, index()>=0
-void insertAfter(List L, int x);
+void insertAfter(List L, LIST_ELEMENT x);
 
 // Delete the front element. Pre: length()>0
 void deleteFront(List L);

@@ -12,7 +12,7 @@
 
 // private NodeObj type
 typedef struct NodeObj{
-  int data;
+  LIST_ELEMENT data;
   struct NodeObj *next;
   struct NodeObj *prev;
 } NodeObj;
@@ -25,12 +25,12 @@ typedef struct ListObj{
   Node front;
   Node back;
   Node cursor;
-  int length;
-  int index;
+  LIST_ELEMENT length;
+  LIST_ELEMENT index;
 } ListObj;
 
 // Returns reference to new Node object. Initializes next and data fields.
-Node newNode(int data){
+Node newNode(LIST_ELEMENT data){
   Node N = malloc(sizeof(NodeObj));
   N->data = data;
   N->next = NULL;
@@ -69,7 +69,7 @@ void freeList(List* pL){
 }
 
 // Returns the number of elements in L.
-int length(List L){
+LIST_ELEMENT length(List L){
   if (L == NULL){
     printf("List Error: calling length() on NULL List reference\n");
     exit(EXIT_FAILURE);
@@ -78,7 +78,7 @@ int length(List L){
 }
 
 // Returns index of cursor element if defined, -1 otherwise.
-int index(List L){
+LIST_ELEMENT index(List L){
   if (L == NULL){
     printf("List Error: calling index() on NULL List reference\n");
     exit(EXIT_FAILURE);
@@ -87,7 +87,7 @@ int index(List L){
 }
 
 // Returns front element of L. Pre: length()>0
-int front(List L){
+LIST_ELEMENT front(List L){
   if (L == NULL){
     printf("List Error: calling front() on NULL List reference\n");
     exit(EXIT_FAILURE);
@@ -100,7 +100,7 @@ int front(List L){
 }
 
 // Returns back element of L. Pre: length()>0
-int back(List L){
+LIST_ELEMENT back(List L){
   if (L == NULL){
     printf("List Error: calling back() on NULL List reference\n");
     exit(EXIT_FAILURE);
@@ -113,7 +113,7 @@ int back(List L){
 }
 
 // Returns cursor element of L. Pre: length()>0, index()>=0
-int get(List L){
+LIST_ELEMENT get(List L){
   if (L == NULL){
     printf("List Error: calling get() on NULL List reference\n");
     exit(EXIT_FAILURE);
@@ -142,7 +142,7 @@ void clear(List L){
 
 // Overwrites the cursor element’s data with x.
 // Pre: length()>0, index()>=0
-void set(List L, int x){
+void set(List L, LIST_ELEMENT x){
   if(L == NULL){
     printf("List Error: calling set() on NULL List reference\n");
     exit(EXIT_FAILURE);
@@ -235,7 +235,7 @@ void moveNext(List L){
 
 // Insert new element into L. If L is non-empty,
 // insertion takes place before front element.
-void prepend(List L, int x){
+void prepend(List L, LIST_ELEMENT x){
   Node N = newNode(x);
 
   if(L == NULL){
@@ -255,7 +255,7 @@ void prepend(List L, int x){
 
 // Insert new element into L. If L is non-empty,
 // insertion takes place after back element.
-void append(List L, int x){
+void append(List L, LIST_ELEMENT x){
   Node N = newNode(x);
 
   if(L == NULL){
@@ -274,7 +274,7 @@ void append(List L, int x){
 
 // Insert new element before cursor.
 // Pre: length()>0, index()>=0
-void insertBefore(List L, int x){
+void insertBefore(List L, LIST_ELEMENT x){
   Node N = newNode(x);
 
   if(L == NULL){
@@ -319,7 +319,7 @@ void insertBefore(List L, int x){
 
 // Insert new element after cursor.
 // Pre: length()>0, index()>=0
-void insertAfter(List L, int x){
+void insertAfter(List L, LIST_ELEMENT x){
   Node N = newNode(x);
 
   if(L == NULL){
@@ -458,7 +458,7 @@ void printList(FILE *out, List L){
     exit(EXIT_FAILURE);
   }
   for(moveFront(L); index(L)>=0; moveNext(L)){
-     fprintf(out, "%d ", get(L));
+     fprintf(out, "%ld ", get(L));
   }
 }
 
@@ -468,8 +468,8 @@ void printList(FILE *out, List L){
 // of L is unchanged.
 List copyList(List L){
   List R = newList();
-  int x;
-  int temp = L->index;
+  LIST_ELEMENT x;
+  LIST_ELEMENT temp = L->index;
 
   if(L == NULL){
     printf("List Error: calling copyList() on NULL List reference\n");
@@ -481,7 +481,7 @@ List copyList(List L){
   }
   L->index = temp;
   moveFront(L);
-  for(int i = 0; i < temp; i++){
+  for(LIST_ELEMENT i = 0; i < temp; i++){
     moveNext(L);
   }
   return R;
