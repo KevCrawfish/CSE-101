@@ -1,0 +1,8 @@
+Artihmetic.c - Performs artihmetic on arbitrarily large signed integers
+BigInteger.c - BigInteger implementation file
+BigInteger.h - BigInteger header file
+BigIntegerTest.c - Test suite for BigInteger ADT
+List.c - Doubly Linked List ADT implementation
+List.h - Contains function headers for List.c
+ListTest.c - Test suite for List ADT
+Makefile - Makes Arithmetic, BigIntegerTest, and ListTest
