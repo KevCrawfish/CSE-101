@@ -6,14 +6,15 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
-
-#ifndef BIG_INTEGER_H_INCLUDE_
-#define BIG_INTEGER_H_INCLUDE_
+#include"BigInteger.h"
 
 // Exported type  -------------------------------------------------------------
 
 // BigInteger reference type
-typedef struct BigIntegerObj* BigInteger;
+typedef struct BigIntegerObj{
+  List *mag;
+  int sign;
+} BigIntegerObj;
 
 
 // Constructors-Destructors ---------------------------------------------------
@@ -21,7 +22,11 @@ typedef struct BigIntegerObj* BigInteger;
 // newBigInteger()
 // Returns a reference to a new BigInteger object in the zero state.
 BigInteger newBigInteger(){
-  return 0;
+  BigInteger B = malloc(sizeof(BigIntegerObj));
+
+  B->mag = (List *)malloc(sizeof(List));
+  B->sign = 0;
+  return B;
 }
 
 // freeBigInteger()
@@ -36,7 +41,7 @@ void freeBigInteger(BigInteger* pN){
 // Returns -1 if N is negative, 1 if N is positive, and 0 if N is in the zero
 // state.
 int sign(BigInteger N){
-  return 0;
+  return N->sign;
 }
 
 // compare()
@@ -152,5 +157,3 @@ BigInteger rem(BigInteger A, BigInteger B);
 void printBigInteger(FILE* out, BigInteger N){
 
 }
-
-#endif
