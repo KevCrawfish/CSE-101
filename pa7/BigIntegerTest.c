@@ -14,17 +14,67 @@ int main(){
   BigInteger D = NULL;
   //////////////////////
 
-  A = newBigInteger();
-  if (sign(A) != 0) return 0;
+  /*
+   * Adding numbers fall into one of 4 cases, denote pos = positive number, neg = negative number
+   *
+   * pos + pos = pos
+   *
+   * pos + neg = 0
+   *           < 0
+   *           > 0
+   *
+   * neg + pos = 0
+   *           < 0
+   *           > 0
+   *
+   * neg + neg = neg
+   *
+   * */
+  A = stringToBigInteger("+111122223333");
+  B = stringToBigInteger("+222211110000");
+  C = newBigInteger();
 
-  B = stringToBigInteger("13378008135");
-  C = stringToBigInteger("+13378008135");
-  D = stringToBigInteger("-13378008135");
-  if (sign(B) != 1) return 0;
-  if (sign(C) != 1) return 0;
-  if (sign(D) != -1) return 0;
+  //pos + pos = pos
+  D = stringToBigInteger("+333333333333");
+  add(C, A, B);
+
+  if(!equals(C, D)) return 0;
+  freeBigInteger(&B);
+  freeBigInteger(&D);
+
+  //add a positive and a negative integer
+  //-> pos + neg = 0
+  B = stringToBigInteger("-111122223333");
+  add(C, A, B);
+  if(sign(C) != 0) return 0;
+  freeBigInteger(&B);
+
+  //-> pos + neg > 0
+  B = stringToBigInteger("-110122223333");
+  D = stringToBigInteger("1000000000");
+  add(C, A, B);
+  if(sign(C) != 1) return 0;
+  if(!equals(C, D)) return 0;
+  freeBigInteger(&B);
+  freeBigInteger(&D);
+
+  //-> pos + neg < 0
+  B = stringToBigInteger("-112122223333");
+  D = stringToBigInteger("-1000000000");
+  add(C, A, B);
+  if(sign(C) != -1) return 0;
+  if(!equals(C, D)) return 0;
+  freeBigInteger(&D);
+
+
+  //-> neg + neg = neg
+  freeBigInteger(&A);
+  A = stringToBigInteger("-221211110000");
+  D = stringToBigInteger("-333333333333");
+  add(C, A, B);
+  if(!equals(C, D)) return 0;
 
   //////////////////////
-  printf("ok ");
+  printf("ok\n");
   return 0;
 }

@@ -12,7 +12,7 @@
 
 // BigInteger reference type
 typedef struct BigIntegerObj{
-  List *mag;
+  List mag;
   int sign;
 } BigIntegerObj;
 
@@ -23,8 +23,7 @@ typedef struct BigIntegerObj{
 // Returns a reference to a new BigInteger object in the zero state.
 BigInteger newBigInteger(){
   BigInteger B = malloc(sizeof(BigIntegerObj));
-
-  B->mag = (List *)malloc(sizeof(List));
+  B->mag = newList();
   B->sign = 0;
   return B;
 }
@@ -53,6 +52,14 @@ int compare(BigInteger A, BigInteger B){
 // equals()
 // Return true (1) if A and B are equal, false (0) otherwise.
 int equals(BigInteger A, BigInteger B){
+  if(A->sign != B->sign){
+    return 0;
+  }
+
+  if(equal(A->mag, B->mag)){
+    return 1;
+  }
+
   return 0;
 }
 
@@ -61,14 +68,20 @@ int equals(BigInteger A, BigInteger B){
 // makeZero()
 // Re-sets N to the zero state.
 void makeZero(BigInteger N){
-
+  freeList(&N->mag);
+  N->mag = newList();
+  N->sign = 0;
 }
 
 // negate()
 // Reverses the sign of N: positive <--> negative. Does nothing if N is in the
 // zero state.
 void negate(BigInteger N){
-
+  if (N->sign == -1){
+    N->sign = 1;
+  } else if(N->sign == 1){
+    N->sign = -1;
+  }
 }
 
 
@@ -80,13 +93,41 @@ void negate(BigInteger N){
 // Pre: s is a non-empty string containing only base ten digits {0,1,2,3,4,5,6,7,8,9}
 // and an optional sign {+, -} prefix.
 BigInteger stringToBigInteger(char* s){
-  return 0;
+  int tmp;
+  char *ptr;
+  BigInteger B = newBigInteger();
+
+  if (s[0] == '-'){
+    B->sign = -1;
+  } else {
+    B->sign = 1;
+  }
+
+  if(s[0] == '-' || s[0] == '+'){
+    tmp = 1;
+  }
+
+  for(long i = 0; i < strlen(s); i += 2){
+    if(tmp == 1){
+      i++;
+      tmp = 0;
+    }
+    if((i + 2) > strlen(s)){
+      append(B->mag, strtol(strncpy(malloc(1), &s[i], 1), &ptr, 10));
+      break;
+    }
+    append(B->mag, strtol(strncpy(malloc(2), &s[i], 2), &ptr, 10));
+  }
+  return B;
 }
 
 // copy()
 // Returns a reference to a new BigInteger object in the same state as N.
 BigInteger copy(BigInteger N){
-  return 0;
+  BigInteger B = newBigInteger();
+  B->mag = copyList(N->mag);
+  B->sign = N->sign;
+  return B;
 }
 
 // add()

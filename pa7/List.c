@@ -129,6 +129,30 @@ LIST_ELEMENT get(List L){
   return L->cursor->data;
 }
 
+// Returns true (1) iff Lists A and B are in same
+// state, and returns false (0) otherwise.
+LIST_ELEMENT equal(List A, List B){
+  int eq = 0;
+  Node N = NULL;
+  Node M = NULL;
+
+  if (A == NULL || B == NULL){
+    printf("List Error: calling equals() on NULL List reference\n");
+    exit(EXIT_FAILURE);
+  }
+
+  eq = (A->length == B->length);
+  N = A->front;
+  M = B->front;
+  while(eq && N != NULL && M != NULL){
+    eq = (N->data == M->data);
+    N = N->next;
+    M = M->next;
+  }
+  return eq;
+}
+
+
 // Resets L to its original empty state.
 void clear(List L){
   if(L != NULL){
