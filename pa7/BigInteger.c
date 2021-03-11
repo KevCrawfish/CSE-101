@@ -6,6 +6,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
+#include<math.h>
 #include"BigInteger.h"
 
 // Exported type  -------------------------------------------------------------
@@ -49,7 +50,17 @@ int sign(BigInteger N){
 // compare()
 // Returns -1 if A<B, 1 if A>B, and 0 if A=B.
 int compare(BigInteger A, BigInteger B){
-  return 0;
+  moveFront(A->mag);
+  moveFront(B->mag);
+
+  if(equals(A, B)){
+    return 0;
+  }
+  if(get(A->mag) < get(B->mag)){
+    return -1;
+  } else {
+    return 1;
+  }
 }
 
 // equals()
@@ -67,6 +78,7 @@ int equals(BigInteger A, BigInteger B){
 }
 
 int NumLen(BigInteger N){
+  if (get(N->mag) >= 1000000000)  return 10;
   if (get(N->mag) >= 100000000)  return 9;
   if (get(N->mag) >= 10000000)   return 8;
   if (get(N->mag) >= 1000000)    return 7;
@@ -112,6 +124,7 @@ BigInteger stringToBigInteger(char* s){
   char *ptr;
   BigInteger B = newBigInteger();
 
+  // Read sign of number
   if (s[0] == '-'){
     B->sign = -1;
   } else {
@@ -124,6 +137,7 @@ BigInteger stringToBigInteger(char* s){
 
   B->size = strlen(s);
 
+  // Read in 9 numbers at a time
   for(long i = 0; i < strlen(s); i += 9){
     if(tmp == 1){
       i++;
@@ -255,6 +269,9 @@ void normalisesub(BigInteger D){
   if(get(D->mag) == 0){
     D->sign = 0;
   }
+  if(NumLen(D) > 9){
+    set(D->mag, (get(D->mag) / 10));
+  }
   return;
 }
 
@@ -262,10 +279,52 @@ void normalisesub(BigInteger D){
 // Places the difference of A and B in the existing BigInteger D, overwriting
 // its current state:  D = A - B
 void subtract(BigInteger D, BigInteger A, BigInteger B){
-  while(index(A->mag)>=0){
-    append(S->mag, (get(A->mag) - get(B->mag)));
-    moveNext(A->mag);
-    moveNext(B->mag);
+  makeZero(D);
+  moveFront(A->mag);
+  moveFront(B->mag);
+
+  if(B->sign == -1 && A->sign == -1){
+    A->sign = 1;
+    add(D, A, B);
+    A->sign = -1;
+    moveFront(A->mag);
+    moveFront(B->mag);
+    if(get(A->mag) == get(B->mag)){
+      D->sign = 0;
+    } else if(get(A->mag) > get(B->mag)){
+      D->sign = -1;
+    } else {
+      D->sign = 1;
+    }
+    return;
+  }
+
+  if(B->sign == 1 && A->sign == -1){
+    A->sign = 1;
+    add(D, A, B);
+    A->sign = -1;
+    D->sign = -1;
+    return;
+  }
+
+  if(A->sign == 1 && B->sign == -1){
+    B->sign = 1;
+    add(D, A, B);
+    B->sign = -1;
+    return;
+  }
+
+  if(A->sign == 1 && B->sign == 1){
+    if(get(B->mag) > get(A->mag)){
+      A->sign = -1;
+      add(D, A, B);
+      A->sign = 1;
+      D->sign = -1;
+    } else {
+      B->sign = -1;
+      add(D, A, B);
+      B->sign = 1;
+    }
   }
   normalisesub(D);
 }
@@ -273,15 +332,49 @@ void subtract(BigInteger D, BigInteger A, BigInteger B){
 // diff()
 // Returns a reference to a new BigInteger object representing A - B.
 BigInteger diff(BigInteger A, BigInteger B){
-  BigInteger S = newBigInteger();
-  return S;
+  BigInteger D = newBigInteger();
+  subtract(D, A, B);
+  return D;
+}
+
+void mulnormalise(BigInteger P){
+  long c = 0;
+  moveBack(P->mag);
+  while(index(P->mag)>=0){
+    set(P->mag, (get(P->mag) + c));
+    c = 0;
+    if(get(P->mag) >= 1000000000){
+      c = get(P->mag) / 1000000000;
+      set(P->mag, (get(P->mag) % 1000000000));
+    }
+    movePrev(P->mag);
+  }
+  if(c > 0){
+    moveFront(P->mag);
+    insertBefore(P->mag, c);
+  }
+}
+
+void muladd(BigInteger T, BigInteger P){
+  while(length(P->mag) != length(T->mag)){
+    prepend(P->mag, 0);
+  }
+
+  moveBack(P->mag);
+  moveBack(T->mag);
+
+  while(index(T->mag)>=0){
+    set(P->mag, get(T->mag) + get(P->mag));
+    movePrev(P->mag);
+    movePrev(T->mag);
+  }
 }
 
 // multiply()
 // Places the product of A and B in the existing BigInteger P, overwriting
 // its current state:  P = A*B
 void multiply(BigInteger P, BigInteger A, BigInteger B){
-
+  
 }
 
 // prod()
