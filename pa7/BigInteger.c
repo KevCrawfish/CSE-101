@@ -14,6 +14,7 @@
 typedef struct BigIntegerObj{
   List mag;
   int sign;
+  int size;
 } BigIntegerObj;
 
 
@@ -25,13 +26,15 @@ BigInteger newBigInteger(){
   BigInteger B = malloc(sizeof(BigIntegerObj));
   B->mag = newList();
   B->sign = 0;
+  B->size = 0;
   return B;
 }
 
 // freeBigInteger()
 // Frees heap memory associated with *pN, sets *pN to NULL.
 void freeBigInteger(BigInteger* pN){
-
+  freeList(&(*pN)->mag);
+  free(*pN);
 }
 
 // Access functions -----------------------------------------------------------
@@ -61,6 +64,18 @@ int equals(BigInteger A, BigInteger B){
   }
 
   return 0;
+}
+
+int NumLen(BigInteger N){
+  if (get(N->mag) >= 100000000)  return 9;
+  if (get(N->mag) >= 10000000)   return 8;
+  if (get(N->mag) >= 1000000)    return 7;
+  if (get(N->mag) >= 100000)     return 6;
+  if (get(N->mag) >= 10000)      return 5;
+  if (get(N->mag) >= 1000)       return 4;
+  if (get(N->mag) >= 100)        return 3;
+  if (get(N->mag) >= 10)         return 2;
+  return 1;
 }
 
 // Manipulation procedures ----------------------------------------------------
@@ -107,17 +122,20 @@ BigInteger stringToBigInteger(char* s){
     tmp = 1;
   }
 
-  for(long i = 0; i < strlen(s); i += 2){
+  B->size = strlen(s);
+
+  for(long i = 0; i < strlen(s); i += 9){
     if(tmp == 1){
       i++;
       tmp = 0;
     }
-    if((i + 2) > strlen(s)){
-      append(B->mag, strtol(strncpy(malloc(1), &s[i], 1), &ptr, 10));
+    if((i + 9) > strlen(s)){
+      append(B->mag, strtol(strncpy(malloc(9), &s[i], 9), &ptr, 10));
       break;
     }
-    append(B->mag, strtol(strncpy(malloc(2), &s[i], 2), &ptr, 10));
+    append(B->mag, strtol(strncpy(malloc(9), &s[i], 9), &ptr, 10));
   }
+
   return B;
 }
 
@@ -130,17 +148,107 @@ BigInteger copy(BigInteger N){
   return B;
 }
 
+void normaliseadd(BigInteger S){
+  if(get(S->mag) < 0){
+    set(S->mag, (get(S->mag) * - 1));
+    S->sign = -1;
+  }
+  if(get(S->mag) == 0){
+    S->sign = 0;
+  }
+  return;
+}
+
 // add()
 // Places the sum of A and B in the existing BigInteger S, overwriting its
 // current state:  S = A + B
 void add(BigInteger S, BigInteger A, BigInteger B){
+  int j = 0;
+  int i = 0;
+  makeZero(S);
+  moveFront(A->mag);
+  moveFront(B->mag);
 
+  if(A->sign == -1 && B->sign == -1){
+    while(index(A->mag)>=0){
+      append(S->mag, (get(A->mag) + get(B->mag)));
+      moveNext(A->mag);
+      moveNext(B->mag);
+    }
+
+    S->sign = -1;
+    return;
+  }
+
+  if(A->sign == -1){
+    while(index(A->mag)>=0){
+      append(S->mag, (get(B->mag) - get(A->mag)));
+      if(j != 0){
+        if((index(A->mag) + 1) == length(A->mag)){
+          i += NumLen(A) - 1;
+        } else {
+          i += 8;
+        }
+      }
+      moveNext(A->mag);
+      moveNext(B->mag);
+      j++;
+    }
+    j = 1;
+    for(int z = 0; z < i; z++){
+      j *= 10;
+    }
+    moveFront(S->mag);
+    set(S->mag, (get(S->mag) * j));
+    if(get(S->mag) != 0){
+      S->sign = 1;
+    }
+    normaliseadd(S);
+    return;
+  }
+
+  if(B->sign == -1){
+    while(index(A->mag)>=0){
+      append(S->mag, (get(A->mag) - get(B->mag)));
+      if(j != 0){
+        if((index(A->mag) + 1) == length(A->mag)){
+          i += NumLen(A) - 1;
+        } else {
+          i += 8;
+        }
+      }
+      moveNext(A->mag);
+      moveNext(B->mag);
+      j++;
+    }
+    j = 1;
+    for(int z = 0; z < i; z++){
+      j *= 10;
+    }
+    moveFront(S->mag);
+    set(S->mag, (get(S->mag) * j));
+    if(get(S->mag) != 0){
+      S->sign = 1;
+    }
+    normaliseadd(S);
+    return;
+  }
+
+  while(index(A->mag)>=0){
+    append(S->mag, (get(A->mag) + get(B->mag)));
+    moveNext(A->mag);
+    moveNext(B->mag);
+  }
+
+  S->sign = 1;
 }
 
 // sum()
 // Returns a reference to a new BigInteger object representing A + B.
 BigInteger sum(BigInteger A, BigInteger B){
-  return 0;
+  BigInteger S = newBigInteger();
+  add(S, A, B);
+  return S;
 }
 
 // subtract()
@@ -153,7 +261,8 @@ void subtract(BigInteger D, BigInteger A, BigInteger B){
 // diff()
 // Returns a reference to a new BigInteger object representing A - B.
 BigInteger diff(BigInteger A, BigInteger B){
-  return 0;
+  BigInteger S = newBigInteger();
+  return S;
 }
 
 // multiply()
@@ -166,7 +275,8 @@ void multiply(BigInteger P, BigInteger A, BigInteger B){
 // prod()
 // Returns a reference to a new BigInteger object representing A*B
 BigInteger prod(BigInteger A, BigInteger B){
-  return 0;
+  BigInteger S = newBigInteger();
+  return S;
 }
 
 
@@ -196,5 +306,23 @@ BigInteger rem(BigInteger A, BigInteger B);
 // printBigInteger()
 // Prints a base 10 string representation of N to filestream out.
 void printBigInteger(FILE* out, BigInteger N){
-
+  if(N->sign == -1){
+    printf("-");
+  }
+  int i = 0;
+  for(moveFront(N->mag); index(N->mag)>=0; moveNext(N->mag)){
+    if(NumLen(N) < 9){
+      if((index(N->mag) + 1) == length(N->mag)){
+        for(int j = 0; j < ((N->size - i) - NumLen(N)); j++){
+          printf("0");
+        }
+      } else {
+        for(int j = 0; j < (9 - NumLen(N)); j++){
+          printf("0");
+        }
+      }
+    }
+    fprintf(out, "%ld ", get(N->mag));
+    i += 10;
+  }
 }
