@@ -14,52 +14,65 @@ int main(){
   BigInteger D = NULL;
   //////////////////////
 
+  /*
+   * subtracting numbers fall into one of 4 cases, denote pos = positive number, neg = negative number
+   *
+   * pos - pos = 0
+   *           < 0
+   *           > 0
+   *
+   * pos - neg = pos
+   *
+   * neg - pos = neg
+   *
+   * neg - neg = 0
+   *           < 0
+   *           > 0
+   *
+   * */
+
+  // pos - pos = 0
   A = stringToBigInteger("+111122223333");
-  B = stringToBigInteger("+222211110000");
-
-  //pos + pos = pos
-  D = stringToBigInteger("+333333333333");
-  C = sum(A, B);
-
-  if(!equals(C, D)) return 0;
-  freeBigInteger(&B);
-  freeBigInteger(&C);
-  freeBigInteger(&D);
-
-  //-> neg + pos == 0
-  negate(A); //A-> -111122223333
   B = stringToBigInteger("+111122223333");
-  C = sum(A, B);
+  C = newBigInteger();
+
+  subtract(C, A, B);
   if(sign(C) != 0) return 0;
-  freeBigInteger(&B);
-  freeBigInteger(&C);
 
-  //-> neg + pos > 0
-  B = stringToBigInteger("+112122223333");
-  D = stringToBigInteger("1000000000");
-  C = sum(A, B);
-  if(sign(C) != 1) return 0;
-  if(!equals(C, D)) return 0;
-  freeBigInteger(&B);
-  freeBigInteger(&C);
-  freeBigInteger(&D);
+  printf("ok\n");
+  return 0;
 
-  //-> neg + pos < 0
-  //negate(*pA);
-  B = stringToBigInteger("+110122223333");
-  D = stringToBigInteger("-1000000000");
-  C = sum(A, B);
+  // pos - pos < 0
+  freeBigInteger(&B);
+  B = stringToBigInteger("121122223333");
+  D = stringToBigInteger("-10000000000");
+  subtract(C, A, B);
   if(sign(C) != -1) return 0;
   if(!equals(C, D)) return 0;
   freeBigInteger(&D);
 
-  //-> neg + neg
-  freeBigInteger(&B);
-  freeBigInteger(&C);
-  B = stringToBigInteger("-222211110000");
-  D = stringToBigInteger("-333333333333");
-  C = sum(A, B);
+  // pos - pos > 0
+  freeBigInteger(B);
+  B = stringToBigInteger("101122223333");
+  D = stringToBigInteger("10000000000");
+  subtract(C, A, B);
+  if(sign(C) != 1) return 0;
   if(!equals(C, D)) return 0;
+  freeBigInteger(&D);
+
+  //pos - neg = pos
+  negate(B);
+  D = stringToBigInteger("212244446666");
+  subtract(C, A, B);
+  if(sign(C) != 1) return 0;
+  if(!equals(C, D)) return 0;
+
+  //neg - pos = neg
+  negate(D);
+  subtract(C, B, A);
+  if(sign(C) != -1) return 0;
+  if(!equals(C, D)) return 0;
+
 
   //////////////////////
   printf("ok\n");

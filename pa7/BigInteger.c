@@ -251,11 +251,23 @@ BigInteger sum(BigInteger A, BigInteger B){
   return S;
 }
 
+void normalisesub(BigInteger D){
+  if(get(D->mag) == 0){
+    D->sign = 0;
+  }
+  return;
+}
+
 // subtract()
 // Places the difference of A and B in the existing BigInteger D, overwriting
 // its current state:  D = A - B
 void subtract(BigInteger D, BigInteger A, BigInteger B){
-
+  while(index(A->mag)>=0){
+    append(S->mag, (get(A->mag) - get(B->mag)));
+    moveNext(A->mag);
+    moveNext(B->mag);
+  }
+  normalisesub(D);
 }
 
 // diff()
