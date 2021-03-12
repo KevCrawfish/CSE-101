@@ -205,10 +205,11 @@ void add(BigInteger S, BigInteger A, BigInteger B){
       B->sign = 1;
       subtract(S, A, B);
       B->sign = -1;
+      return;
     } else {
       add(S, B, A);
+      return;
     }
-    return;
   }
 
   while(index(A->mag)>=0){
@@ -310,39 +311,6 @@ BigInteger diff(BigInteger A, BigInteger B){
   BigInteger D = newBigInteger();
   subtract(D, A, B);
   return D;
-}
-
-void mulnormalise(BigInteger P){
-  long c = 0;
-  moveBack(P->mag);
-  while(index(P->mag)>=0){
-    set(P->mag, (get(P->mag) + c));
-    c = 0;
-    if(get(P->mag) >= 1000000000){
-      c = get(P->mag) / 1000000000;
-      set(P->mag, (get(P->mag) % 1000000000));
-    }
-    movePrev(P->mag);
-  }
-  if(c > 0){
-    moveFront(P->mag);
-    insertBefore(P->mag, c);
-  }
-}
-
-void muladd(BigInteger T, BigInteger P){
-  while(length(P->mag) != length(T->mag)){
-    prepend(P->mag, 0);
-  }
-
-  moveBack(P->mag);
-  moveBack(T->mag);
-
-  while(index(T->mag)>=0){
-    set(P->mag, get(T->mag) + get(P->mag));
-    movePrev(P->mag);
-    movePrev(T->mag);
-  }
 }
 
 // multiply()
