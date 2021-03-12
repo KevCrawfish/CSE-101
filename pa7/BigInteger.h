@@ -11,6 +11,12 @@
 #ifndef BIG_INTEGER_H_INCLUDE_
 #define BIG_INTEGER_H_INCLUDE_
 
+#define POWER 9
+#define BASE 1000000000
+
+//#define POWER 2
+//#define BASE 100
+
 // Exported type  -------------------------------------------------------------
 
 // BigInteger reference type

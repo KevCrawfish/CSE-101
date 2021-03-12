@@ -56,11 +56,21 @@ int compare(BigInteger A, BigInteger B){
   if(equals(A, B)){
     return 0;
   }
-  if(get(A->mag) < get(B->mag)){
-    return -1;
-  } else {
-    return 1;
+  while(index(A->mag)>= 0){
+    if(get(A->mag) < get(B->mag)){
+      moveFront(A->mag);
+      moveFront(B->mag);
+      return -1;
+    }
+    if(get(A->mag) > get(B->mag)){
+      moveFront(A->mag);
+      moveFront(B->mag);
+      return 1;
+    }
+    moveNext(A->mag);
+    moveNext(B->mag);
   }
+  return 0;
 }
 
 // equals()
@@ -137,17 +147,17 @@ BigInteger stringToBigInteger(char* s){
 
   B->size = strlen(s);
 
-  // Read in 9 numbers at a time
-  for(long i = 0; i < strlen(s); i += 9){
+  // Read in POWER numbers at a time
+  for(long i = 0; i < strlen(s); i += POWER){
     if(tmp == 1){
       i++;
       tmp = 0;
     }
-    if((i + 9) > strlen(s)){
-      append(B->mag, strtol(strncpy(malloc(9), &s[i], 9), &ptr, 10));
+    if((i + POWER) > strlen(s)){
+      append(B->mag, strtol(strncpy(malloc(POWER), &s[i], POWER), &ptr, 10));
       break;
     }
-    append(B->mag, strtol(strncpy(malloc(9), &s[i], 9), &ptr, 10));
+    append(B->mag, strtol(strncpy(malloc(POWER), &s[i], POWER), &ptr, 10));
   }
 
   return B;
@@ -162,99 +172,51 @@ BigInteger copy(BigInteger N){
   return B;
 }
 
-void normaliseadd(BigInteger S){
-  if(get(S->mag) < 0){
-    set(S->mag, (get(S->mag) * - 1));
-    S->sign = -1;
+void normalise(BigInteger P){
+  long c = 0;
+  moveBack(P->mag);
+  while(index(P->mag)>=0){
+    set(P->mag, (get(P->mag) + c));
+    c = 0;
+    if(get(P->mag) >= BASE){
+      c = get(P->mag) / BASE;
+      set(P->mag, (get(P->mag) % BASE));
+    }
+    movePrev(P->mag);
   }
-  if(get(S->mag) == 0){
-    S->sign = 0;
+  if(c > 0){
+    moveFront(P->mag);
+    insertBefore(P->mag, c);
   }
-  return;
+
 }
 
 // add()
 // Places the sum of A and B in the existing BigInteger S, overwriting its
 // current state:  S = A + B
 void add(BigInteger S, BigInteger A, BigInteger B){
-  int j = 0;
-  int i = 0;
   makeZero(S);
   moveFront(A->mag);
   moveFront(B->mag);
-
-  if(A->sign == -1 && B->sign == -1){
-    while(index(A->mag)>=0){
-      append(S->mag, (get(A->mag) + get(B->mag)));
-      moveNext(A->mag);
-      moveNext(B->mag);
+  if(A->sign == B->sign){
+    S->sign = A->sign;
+  } else {
+    if(B->sign == -1){
+      B->sign = 1;
+      subtract(S, A, B);
+      B->sign = -1;
+    } else {
+      add(S, B, A);
     }
-
-    S->sign = -1;
-    return;
-  }
-
-  if(A->sign == -1){
-    while(index(A->mag)>=0){
-      append(S->mag, (get(B->mag) - get(A->mag)));
-      if(j != 0){
-        if((index(A->mag) + 1) == length(A->mag)){
-          i += NumLen(A) - 1;
-        } else {
-          i += 8;
-        }
-      }
-      moveNext(A->mag);
-      moveNext(B->mag);
-      j++;
-    }
-    j = 1;
-    for(int z = 0; z < i; z++){
-      j *= 10;
-    }
-    moveFront(S->mag);
-    set(S->mag, (get(S->mag) * j));
-    if(get(S->mag) != 0){
-      S->sign = 1;
-    }
-    normaliseadd(S);
-    return;
-  }
-
-  if(B->sign == -1){
-    while(index(A->mag)>=0){
-      append(S->mag, (get(A->mag) - get(B->mag)));
-      if(j != 0){
-        if((index(A->mag) + 1) == length(A->mag)){
-          i += NumLen(A) - 1;
-        } else {
-          i += 8;
-        }
-      }
-      moveNext(A->mag);
-      moveNext(B->mag);
-      j++;
-    }
-    j = 1;
-    for(int z = 0; z < i; z++){
-      j *= 10;
-    }
-    moveFront(S->mag);
-    set(S->mag, (get(S->mag) * j));
-    if(get(S->mag) != 0){
-      S->sign = 1;
-    }
-    normaliseadd(S);
     return;
   }
 
   while(index(A->mag)>=0){
-    append(S->mag, (get(A->mag) + get(B->mag)));
+    append(S->mag, get(A->mag) + get(B->mag));
     moveNext(A->mag);
     moveNext(B->mag);
   }
-
-  S->sign = 1;
+  normalise(S);
 }
 
 // sum()
@@ -265,14 +227,20 @@ BigInteger sum(BigInteger A, BigInteger B){
   return S;
 }
 
-void normalisesub(BigInteger D){
-  if(get(D->mag) == 0){
-    D->sign = 0;
+void deletezero(BigInteger D){
+  moveFront(D->mag);
+  while(front(D->mag) == 0){
+    deleteFront(D->mag);
+    if(length(D->mag) == 0){
+      D->sign = 0;
+      return;
+    }
   }
-  if(NumLen(D) > 9){
-    set(D->mag, (get(D->mag) / 10));
+  D->sign = 1;
+  moveFront(D->mag);
+  if(NumLen(D) < POWER){
+    set(D->mag, get(D->mag) * 100);
   }
-  return;
 }
 
 // subtract()
@@ -283,7 +251,7 @@ void subtract(BigInteger D, BigInteger A, BigInteger B){
   moveFront(A->mag);
   moveFront(B->mag);
 
-  if(B->sign == -1 && A->sign == -1){
+  if(A->sign == -1 && B->sign == -1){
     A->sign = 1;
     add(D, A, B);
     A->sign = -1;
@@ -300,9 +268,15 @@ void subtract(BigInteger D, BigInteger A, BigInteger B){
   }
 
   if(B->sign == 1 && A->sign == -1){
-    A->sign = 1;
-    add(D, A, B);
-    A->sign = -1;
+  A->sign = 1;
+  add(D, A, B);
+  A->sign = -1;
+  D->sign = -1;
+  return;
+  }
+
+  if(compare(A, B) == -1){
+    subtract(D, B, A);
     D->sign = -1;
     return;
   }
@@ -314,19 +288,20 @@ void subtract(BigInteger D, BigInteger A, BigInteger B){
     return;
   }
 
-  if(A->sign == 1 && B->sign == 1){
-    if(get(B->mag) > get(A->mag)){
-      A->sign = -1;
-      add(D, A, B);
-      A->sign = 1;
-      D->sign = -1;
-    } else {
-      B->sign = -1;
-      add(D, A, B);
-      B->sign = 1;
-    }
+  while(index(A->mag)>=0){
+    append(D->mag, get(A->mag) - get(B->mag));
+    moveNext(A->mag);
+    moveNext(B->mag);
   }
-  normalisesub(D);
+
+  normalise(D);
+  deletezero(D);
+  if(length(D->mag) == 0){
+    return;
+  }
+  if(NumLen(D) > 9){
+    set(D->mag, (get(D->mag) / 10));
+  }
 }
 
 // diff()
@@ -374,7 +349,7 @@ void muladd(BigInteger T, BigInteger P){
 // Places the product of A and B in the existing BigInteger P, overwriting
 // its current state:  P = A*B
 void multiply(BigInteger P, BigInteger A, BigInteger B){
-  
+
 }
 
 // prod()
@@ -416,18 +391,18 @@ void printBigInteger(FILE* out, BigInteger N){
   }
   int i = 0;
   for(moveFront(N->mag); index(N->mag)>=0; moveNext(N->mag)){
-    if(NumLen(N) < 9){
+    if(NumLen(N) < POWER){
       if((index(N->mag) + 1) == length(N->mag)){
         for(int j = 0; j < ((N->size - i) - NumLen(N)); j++){
           printf("0");
         }
       } else {
-        for(int j = 0; j < (9 - NumLen(N)); j++){
+        for(int j = 0; j < (POWER - NumLen(N)); j++){
           printf("0");
         }
       }
     }
     fprintf(out, "%ld ", get(N->mag));
-    i += 10;
+    i += POWER + 1;
   }
 }
