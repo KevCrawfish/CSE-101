@@ -133,6 +133,7 @@ BigInteger stringToBigInteger(char* s){
   int tmp = 0;
   char *ptr = NULL;
   char line[100] = "";
+  char end[100] = "";
   BigInteger B = newBigInteger();
 
   // Read sign of number
@@ -149,16 +150,12 @@ BigInteger stringToBigInteger(char* s){
   B->size = strlen(s);
 
   // Read in POWER numbers at a time
-  for(long i = 0; i < strlen(s); i += POWER){
-    if(tmp == 1){
-      i++;
-      tmp = 0;
-    }
-    if((i + POWER) > strlen(s)){
-      append(B->mag, strtol(strncpy(line, &s[i], i), &ptr, 10));
+  for(long i = strlen(s); i > 0; i -= POWER){
+    if((i - POWER) < 0){
+      prepend(B->mag, strtol(strncpy(end, &s[tmp], i - tmp), &ptr, 10));
       break;
     }
-    append(B->mag, strtol(strncpy(line, &s[i], POWER), &ptr, 10));
+    prepend(B->mag, strtol(strncpy(line, &s[i - POWER], POWER), &ptr, 10));
   }
 
   return B;
@@ -187,8 +184,7 @@ void normalise(BigInteger P){
     movePrev(P->mag);
   }
   if(c > 0){
-    moveFront(P->mag);
-    insertBefore(P->mag, c);
+    prepend(P->mag, c);
   }
 
 }
@@ -207,6 +203,15 @@ void add(BigInteger S, BigInteger A, BigInteger B){
       B->sign = 1;
       subtract(S, A, B);
       B->sign = -1;
+      if(compare(A, B) == 1){
+        S->sign = 1;
+      } else {
+        S->sign = -1;
+      }
+      moveFront(S->mag);
+      if(get(S->mag) == 0){
+        S->sign = 0;
+      }
       return;
     } else {
       add(S, B, A);
@@ -296,14 +301,8 @@ void subtract(BigInteger D, BigInteger A, BigInteger B){
     moveNext(A->mag);
     moveNext(B->mag);
   }
-
-  normalise(D);
-  deletezero(D);
-  if(length(D->mag) == 0){
-    return;
-  }
-  if(NumLen(D) > 9){
-    set(D->mag, (get(D->mag) / 10));
+  if(compare(A, B) == 1){
+    D->sign = 1;
   }
 }
 
@@ -315,17 +314,78 @@ BigInteger diff(BigInteger A, BigInteger B){
   return D;
 }
 
+void muladd(BigInteger T, BigInteger P){
+  while(length(P->mag) < length(T->mag)){
+    prepend(P->mag, 0);
+  }
+  while(length(T->mag) < length(P->mag)){
+    prepend(T->mag, 0);
+  }
+
+  moveBack(P->mag);
+  moveBack(T->mag);
+
+  while(index(T->mag)>=0){
+    set(P->mag, get(T->mag) + get(P->mag));
+    movePrev(P->mag);
+    movePrev(T->mag);
+  }
+}
+
 // multiply()
 // Places the product of A and B in the existing BigInteger P, overwriting
 // its current state:  P = A*B
 void multiply(BigInteger P, BigInteger A, BigInteger B){
+  int i = 0;
+  int z = 0;
+  makeZero(P);
 
+  if(A->sign == 0 || B->sign == 0){
+    append(P->mag, 0);
+    return;
+  }
+
+  BigInteger T = newBigInteger();
+
+  moveBack(A->mag);
+  moveBack(B->mag);
+
+  while(index(A->mag) >= 0){
+    while(index(B->mag) >= 0){
+      prepend(T->mag, get(A->mag) * get(B->mag));
+      normalise(T);
+      muladd(T, P);
+      normalise(P);
+      makeZero(T);
+      i++;
+      for(int j = 0; j < i; j++){
+        append(T->mag, 0);
+      }
+      movePrev(B->mag);
+    }
+    i = 0;
+    makeZero(T);
+    append(B->mag, 0);
+    z++;
+    moveBack(B->mag);
+    movePrev(A->mag);
+  }
+  if(A->sign == B->sign){
+    P->sign = 1;
+  } else {
+    P->sign = -1;
+  }
+  for(int j = 0; j < z; j++){
+    deleteBack(B->mag);
+  }
+  freeBigInteger(&T);
 }
 
 // prod()
 // Returns a reference to a new BigInteger object representing A*B
 BigInteger prod(BigInteger A, BigInteger B){
   BigInteger S = newBigInteger();
+  multiply(S, A, B);
   return S;
 }
 
@@ -361,17 +421,6 @@ void printBigInteger(FILE* out, BigInteger N){
   }
   int i = 0;
   for(moveFront(N->mag); index(N->mag)>=0; moveNext(N->mag)){
-    if(NumLen(N) < POWER){
-      if((index(N->mag) + 1) == length(N->mag)){
-        for(int j = 0; j < ((N->size - i) - NumLen(N)); j++){
-          printf("0");
-        }
-      } else {
-        for(int j = 0; j < (POWER - NumLen(N)); j++){
-          printf("0");
-        }
-      }
-    }
     fprintf(out, "%ld ", get(N->mag));
     i += POWER + 1;
   }
