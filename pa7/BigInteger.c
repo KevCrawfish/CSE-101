@@ -130,8 +130,9 @@ void negate(BigInteger N){
 // Pre: s is a non-empty string containing only base ten digits {0,1,2,3,4,5,6,7,8,9}
 // and an optional sign {+, -} prefix.
 BigInteger stringToBigInteger(char* s){
-  int tmp;
-  char *ptr;
+  int tmp = 0;
+  char *ptr = NULL;
+  char line[100] = "";
   BigInteger B = newBigInteger();
 
   // Read sign of number
@@ -154,10 +155,10 @@ BigInteger stringToBigInteger(char* s){
       tmp = 0;
     }
     if((i + POWER) > strlen(s)){
-      append(B->mag, strtol(strncpy(malloc(POWER), &s[i], POWER), &ptr, 10));
+      append(B->mag, strtol(strncpy(line, &s[i], i), &ptr, 10));
       break;
     }
-    append(B->mag, strtol(strncpy(malloc(POWER), &s[i], POWER), &ptr, 10));
+    append(B->mag, strtol(strncpy(line, &s[i], POWER), &ptr, 10));
   }
 
   return B;
@@ -167,6 +168,7 @@ BigInteger stringToBigInteger(char* s){
 // Returns a reference to a new BigInteger object in the same state as N.
 BigInteger copy(BigInteger N){
   BigInteger B = newBigInteger();
+  freeList(&B->mag);
   B->mag = copyList(N->mag);
   B->sign = N->sign;
   return B;

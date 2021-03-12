@@ -314,6 +314,7 @@ void insertBefore(List L, LIST_ELEMENT x){
     exit(EXIT_FAILURE);
   }
   if(L->cursor == L->front){
+    freeNode(&N);
     prepend(L, x);
     return;
   }
