@@ -194,6 +194,12 @@ void normalise(BigInteger P){
 // current state:  S = A + B
 void add(BigInteger S, BigInteger A, BigInteger B){
   makeZero(S);
+  while(length(A->mag) < length(B->mag)){
+    prepend(A->mag, 0);
+  }
+  while(length(B->mag) < length(A->mag)){
+    prepend(B->mag, 0);
+  }
   moveFront(A->mag);
   moveFront(B->mag);
   if(A->sign == B->sign){
@@ -244,11 +250,7 @@ void deletezero(BigInteger D){
       return;
     }
   }
-  D->sign = 1;
   moveFront(D->mag);
-  if(NumLen(D) < POWER){
-    set(D->mag, get(D->mag) * 100);
-  }
 }
 
 // subtract()
@@ -304,6 +306,7 @@ void subtract(BigInteger D, BigInteger A, BigInteger B){
   if(compare(A, B) == 1){
     D->sign = 1;
   }
+  normalise(D);
 }
 
 // diff()
@@ -325,7 +328,7 @@ void muladd(BigInteger T, BigInteger P){
   moveBack(P->mag);
   moveBack(T->mag);
 
-  while(index(T->mag)>=0){
+  while(index(P->mag)>=0 && index(T->mag)>= 0){
     set(P->mag, get(T->mag) + get(P->mag));
     movePrev(P->mag);
     movePrev(T->mag);
@@ -416,12 +419,17 @@ BigInteger rem(BigInteger A, BigInteger B);
 // printBigInteger()
 // Prints a base 10 string representation of N to filestream out.
 void printBigInteger(FILE* out, BigInteger N){
+  if(N->sign == 0){
+    printf("0");
+    return;
+  }
   if(N->sign == -1){
     printf("-");
   }
+  deletezero(N);
   int i = 0;
   for(moveFront(N->mag); index(N->mag)>=0; moveNext(N->mag)){
-    fprintf(out, "%ld ", get(N->mag));
+    fprintf(out, "%ld", get(N->mag));
     i += POWER + 1;
   }
 }
