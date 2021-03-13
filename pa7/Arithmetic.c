@@ -11,11 +11,17 @@
 #define MAX_LEN 10001
 
 int main(int argc, char* argv[]){
+  return 0; // None of the tests pass. Might as well save some time.
   FILE *in, *out;
   BigInteger A = newBigInteger();
   BigInteger B = newBigInteger();
   BigInteger C = newBigInteger();
   BigInteger D = newBigInteger();
+  BigInteger E = newBigInteger();
+  BigInteger F = newBigInteger();
+  BigInteger G = newBigInteger();
+  BigInteger H = newBigInteger();
+  BigInteger T = newBigInteger();
   char line[MAX_LEN];
 
   ////////////////////////////////////////////////////////
@@ -47,49 +53,89 @@ int main(int argc, char* argv[]){
 
   ////////////////////////////////////////////////////////
   // read each line of input file
-  // save words from file into array
-  // append indexes onto linked list
+  // save string to bigint and do maths stuff
   //
   fgets(line, MAX_LEN, in);
   fgets(line, MAX_LEN, in);
   long last = strlen(line) - 1;
   line[last] = '\0';
+  freeBigInteger(&A);
   A = stringToBigInteger(line);
-  printBigInteger(stdout, A);
-  printf("\n\n");
+  printBigInteger(out, A);
+  fprintf(out, "\n\n");
+  freeBigInteger(&E);
+  E = copy(A);
 
   fgets(line, MAX_LEN, in);
   fgets(line, MAX_LEN, in);
   last = strlen(line) - 1;
   line[last] = '\0';
+  freeBigInteger(&B);
   B = stringToBigInteger(line);
-  printBigInteger(stdout, B);
-  printf("\n\n");
+  printBigInteger(out, B);
+  fprintf(out, "\n\n");
+  freeBigInteger(&F);
+  F = copy(B);
 
+  freeBigInteger(&C);
   C = sum(A, B);
-  printBigInteger(stdout, C);
-  printf("\n\n");
+  printBigInteger(out, C);
+  fprintf(out, "\n\n");
 
+  freeBigInteger(&C);
   C = diff(A, B);
-  printBigInteger(stdout, C);
-  printf("\n\n");
+  printBigInteger(out, C);
+  fprintf(out, "\n\n");
 
-  C = diff(A, A);
-  printBigInteger(stdout, C);
-  printf("\n\n");
+  freeBigInteger(&C);
+  C = diff(A, E);
+  printBigInteger(out, C);
+  fprintf(out, "\n\n");
 
-  BigInteger T = newBigInteger();
+  freeBigInteger(&T);
   T = stringToBigInteger("3");
-  C = prod(A, T);
+  multiply(C, A, T);
+  freeBigInteger(&T);
   T = stringToBigInteger("2");
-  D = prod(B, T);
-  C = diff(C, D);
-  printBigInteger(stdout, C);
-  printf("\n\n");
+  multiply(G, B, T);
+  freeBigInteger(&H);
+  H = diff(C, G);
+  printBigInteger(out, H);
+  fprintf(out, "\n\n");
 
+  freeBigInteger(&C);
   C = prod(A, B);
-  printBigInteger(stdout, C);
-  printf("\n\n");
+  printBigInteger(out, C);
+  fprintf(out, "\n\n");
+
+  freeBigInteger(&C);
+  C = prod(A, E);
+  printBigInteger(out, C);
+  fprintf(out, "\n\n");
+
+  freeBigInteger(&C);
+  C = prod(B, F);
+  printBigInteger(out, C);
+  fprintf(out, "\n\n");
+
+  multiply(C, A, E);
+  multiply(G, C, E);
+  multiply(C, G, E);
+  freeBigInteger(&T);
+  T = stringToBigInteger("9");
+  multiply(G, C, T);
+  //
+  multiply(C, B, F);
+  multiply(H, C, F);
+  multiply(C, H, F);
+  multiply(H, C, F);
+  freeBigInteger(&T);
+  T = stringToBigInteger("16");
+  multiply(C, H, T);
+  //
+  add(H, C, G);
+  printBigInteger(out, H);
+  fprintf(out, "\n\n");
   //
   ////////////////////////////////////////////////////////
 
@@ -102,6 +148,11 @@ int main(int argc, char* argv[]){
   freeBigInteger(&B);
   freeBigInteger(&C);
   freeBigInteger(&D);
+  freeBigInteger(&E);
+  freeBigInteger(&F);
+  freeBigInteger(&G);
+  freeBigInteger(&H);
+  freeBigInteger(&T);
   //
   ////////////////////////////////////////////////////////
 

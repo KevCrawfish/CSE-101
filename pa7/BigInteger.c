@@ -420,11 +420,11 @@ BigInteger rem(BigInteger A, BigInteger B);
 // Prints a base 10 string representation of N to filestream out.
 void printBigInteger(FILE* out, BigInteger N){
   if(N->sign == 0){
-    printf("0");
+    fprintf(out, "0");
     return;
   }
   if(N->sign == -1){
-    printf("-");
+    fprintf(out, "-");
   }
   deletezero(N);
   int i = 0;
