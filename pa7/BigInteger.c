@@ -429,6 +429,11 @@ void printBigInteger(FILE* out, BigInteger N){
   deletezero(N);
   int i = 0;
   for(moveFront(N->mag); index(N->mag)>=0; moveNext(N->mag)){
+    if(NumLen(N) < POWER && i > 0){
+      for(int j = 0; j < (POWER - NumLen(N)); j++){
+        fprintf(out,"0");
+      }
+    }
     fprintf(out, "%ld", get(N->mag));
     i += POWER + 1;
   }

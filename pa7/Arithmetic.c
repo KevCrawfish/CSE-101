@@ -11,7 +11,6 @@
 #define MAX_LEN 10001
 
 int main(int argc, char* argv[]){
-  return 0; // None of the tests pass. Might as well save some time.
   FILE *in, *out;
   BigInteger A = newBigInteger();
   BigInteger B = newBigInteger();
