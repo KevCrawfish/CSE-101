@@ -84,7 +84,7 @@ int main(int argc, char* argv[]){
   freeBigInteger(&C);
   C = diff(A, B);
   printBigInteger(out, C);
-  fprintf(out, "\n\n");
+  fprintf(out, "\n\n"); 
 
   freeBigInteger(&C);
   C = diff(A, E);

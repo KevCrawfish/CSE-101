@@ -256,7 +256,7 @@ void deletezero(BigInteger D){
 // subtract()
 // Places the difference of A and B in the existing BigInteger D, overwriting
 // its current state:  D = A - B
-void subtract(BigInteger D, BigInteger A, BigInteger B){
+void subtract(BigInteger D, BigInteger A, BigInteger B){ 
   makeZero(D);
   moveFront(A->mag);
   moveFront(B->mag);
@@ -298,10 +298,21 @@ void subtract(BigInteger D, BigInteger A, BigInteger B){
     return;
   }
 
+  moveBack(A->mag);
+  moveBack(B->mag);
+
+  long c = 0;
+
   while(index(A->mag)>=0){
-    append(D->mag, get(A->mag) - get(B->mag));
-    moveNext(A->mag);
-    moveNext(B->mag);
+    prepend(D->mag, (get(A->mag) - get(B->mag)) + c);
+    c = 0;
+    moveFront(D->mag);
+    while(get(D->mag) < 0){
+      set(D->mag, get(D->mag) + BASE);
+      c--;
+    }
+    movePrev(A->mag);
+    movePrev(B->mag);
   }
   if(compare(A, B) == 1){
     D->sign = 1;
